@@ -1,0 +1,258 @@
+# Tubi Radar Configuration
+# Competitive intelligence monitoring for streaming industry
+
+competitors:
+  - id: roku
+    name: "Roku / The Roku Channel"
+    feeds:
+      - label: roku_newsroom
+        type: rss
+        url: "https://newsroom.roku.com/rss"
+    search_queries:
+      - "Roku OS update streaming"
+      - '"The Roku Channel" FAST channels'
+      - "Roku advertising platform"
+
+  - id: netflix
+    name: "Netflix"
+    feeds:
+      - label: netflix_newsroom
+        type: rss
+        url: "https://about.netflix.com/en/newsroom/rss"
+    search_queries:
+      - "Netflix ad-supported tier new feature"
+      - "Netflix AVOD FAST channels"
+      - "Netflix streaming technology"
+
+  - id: amazon
+    name: "Amazon Prime Video / Freevee"
+    feeds:
+      - label: amazon_news
+        type: rss
+        url: "https://press.aboutamazon.com/rss/news-releases"
+    search_queries:
+      - "Amazon Freevee new content"
+      - "Amazon Prime Video AVOD"
+      - "Amazon streaming advertising"
+
+  - id: disney
+    name: "Disney+ / Hulu"
+    feeds:
+      - label: disney_press
+        type: rss
+        url: "https://thewaltdisneycompany.com/feed/"
+    search_queries:
+      - "Disney+ ad-supported tier"
+      - "Disney+ streaming technology"
+      - "Hulu Disney+ integration"
+
+  - id: youtube
+    name: "YouTube / YouTube TV"
+    feeds:
+      - label: youtube_blog
+        type: rss
+        url: "https://blog.youtube/rss/"
+    search_queries:
+      - "YouTube TV new features"
+      - "YouTube free streaming FAST"
+      - "YouTube advertising technology"
+
+  - id: apple
+    name: "Apple TV+"
+    feeds:
+      - label: apple_newsroom
+        type: rss
+        url: "https://www.apple.com/newsroom/rss-feed.rss"
+    search_queries:
+      - "Apple TV+ streaming"
+      - "Apple TV advertising"
+
+  - id: warner
+    name: "Warner Bros Discovery / Max"
+    feeds: []
+    search_queries:
+      - "Max streaming HBO"
+      - "Warner Bros Discovery streaming"
+
+  - id: paramount
+    name: "Paramount+ / Pluto TV"
+    feeds: []
+    search_queries:
+      - "Paramount+ streaming features"
+      - "Pluto TV FAST channels"
+      - "Paramount streaming advertising"
+
+  - id: peacock
+    name: "Peacock (NBCUniversal)"
+    feeds: []
+    search_queries:
+      - "Peacock streaming new features"
+      - "Peacock ad-supported tier"
+
+  - id: fox
+    name: "Fox Corporation"
+    feeds: []
+    search_queries:
+      - "Fox streaming strategy"
+      - "Fox AVOD advertising"
+
+# Industry news sources - these have more reliable RSS feeds
+industry_feeds:
+  - label: variety
+    type: rss
+    url: "https://variety.com/feed/"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - ad-supported
+      - Tubi
+      - Roku
+      - Netflix
+      - Pluto
+      - Peacock
+      - Freevee
+
+  - label: deadline
+    type: rss
+    url: "https://deadline.com/feed/"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - ad-supported
+      - Tubi
+      - Roku
+      - Netflix
+
+  - label: hollywood_reporter
+    type: rss
+    url: "https://www.hollywoodreporter.com/feed/"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - Netflix
+      - Disney
+      - Amazon
+
+  - label: techcrunch
+    type: rss
+    url: "https://techcrunch.com/category/media-entertainment/feed/"
+    filter_keywords:
+      - streaming
+      - video
+      - advertising
+      - Netflix
+      - YouTube
+
+  - label: the_verge
+    type: rss
+    url: "https://www.theverge.com/rss/index.xml"
+    filter_keywords:
+      - streaming
+      - TV
+      - Netflix
+      - YouTube
+      - Disney
+      - Amazon
+
+  - label: engadget
+    type: rss
+    url: "https://www.engadget.com/rss.xml"
+    filter_keywords:
+      - streaming
+      - TV
+      - Netflix
+      - Roku
+      - YouTube
+
+  - label: ars_technica
+    type: rss
+    url: "https://feeds.arstechnica.com/arstechnica/index"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - YouTube
+      - advertising
+
+  - label: adweek
+    type: rss
+    url: "https://www.adweek.com/feed/"
+    filter_keywords:
+      - streaming
+      - CTV
+      - connected TV
+      - AVOD
+      - advertising
+      - programmatic
+
+  - label: digiday
+    type: rss
+    url: "https://digiday.com/feed/"
+    filter_keywords:
+      - streaming
+      - CTV
+      - connected TV
+      - AVOD
+      - advertising
+
+  - label: broadcasting_cable
+    type: rss
+    url: "https://www.nexttv.com/rss"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - Tubi
+      - Pluto
+      - Roku
+
+global:
+  # How far back to look for articles (hours)
+  lookback_hours: 48
+  
+  # Maximum articles to fetch per feed
+  max_articles_per_feed: 15
+  
+  # Minimum scores for inclusion in reports
+  min_relevance_score: 4
+  min_impact_score: 4
+  min_novelty_score: 0.2
+  
+  # Maximum total items to process per run
+  max_items_total: 50
+  
+  # Maximum items in final report
+  max_report_items: 15
+  
+  # Enable web search via OpenAI tool
+  enable_web_search: false
+  
+  # Maximum web searches per run
+  max_web_searches: 5
+  
+  # Request timeout for RSS feeds (seconds)
+  feed_timeout: 10
+  
+  # OpenAI model settings
+  models:
+    reasoning: "o3-mini"
+    structured: "gpt-4.1"
+    embedding: "text-embedding-3-small"
+  
+  # Temperature settings
+  temperature:
+    classification: 0.2
+    analysis: 0.3
+    report: 0.4
+  
+  # ChromaDB settings
+  chroma:
+    collection_name: "intel_embeddings"
+    similarity_threshold: 0.9
+    
+  # Deduplication settings
+  dedup:
+    window_days: 30
+    similarity_threshold: 0.85
