@@ -245,3 +245,252 @@ def reset_vector_store() -> bool:
         print(f"Error resetting vector store: {e}")
         return False
 
+
+# =============================================================================
+# ENHANCED MEMORY CAPABILITIES
+# =============================================================================
+
+def get_competitor_collection():
+    """Get or create the competitor profiles collection."""
+    from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+    
+    settings = get_settings()
+    client = get_chroma_client()
+    
+    embedding_fn = OpenAIEmbeddingFunction(
+        api_key=settings.openai_api_key,
+        model_name="text-embedding-3-small",
+    )
+    
+    return client.get_or_create_collection(
+        name="competitor_profiles",
+        embedding_function=embedding_fn,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
+def get_trends_collection():
+    """Get or create the trends history collection."""
+    from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+    
+    settings = get_settings()
+    client = get_chroma_client()
+    
+    embedding_fn = OpenAIEmbeddingFunction(
+        api_key=settings.openai_api_key,
+        model_name="text-embedding-3-small",
+    )
+    
+    return client.get_or_create_collection(
+        name="trends_history",
+        embedding_function=embedding_fn,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
+def store_competitor_profile(
+    competitor_id: str,
+    profile_text: str,
+    metadata: dict
+) -> bool:
+    """
+    Store a competitor profile in the vector store.
+    
+    Args:
+        competitor_id: Unique competitor ID
+        profile_text: Full profile text for embedding
+        metadata: Profile metadata (strengths, weaknesses, etc.)
+        
+    Returns:
+        True if successful
+    """
+    try:
+        collection = get_competitor_collection()
+        collection.upsert(
+            ids=[competitor_id],
+            documents=[profile_text],
+            metadatas=[metadata],
+        )
+        return True
+    except Exception as e:
+        print(f"Error storing competitor profile: {e}")
+        return False
+
+
+def get_competitor_context(competitor_id: str) -> Optional[dict]:
+    """
+    Retrieve competitor profile from memory.
+    
+    Returns:
+        Profile dict or None
+    """
+    try:
+        collection = get_competitor_collection()
+        result = collection.get(
+            ids=[competitor_id],
+            include=["documents", "metadatas"],
+        )
+        
+        if result["ids"]:
+            return {
+                "profile_text": result["documents"][0] if result["documents"] else "",
+                "metadata": result["metadatas"][0] if result["metadatas"] else {},
+            }
+        return None
+    except Exception:
+        return None
+
+
+def find_similar_historical(
+    query: str,
+    top_k: int = 5,
+    competitor_filter: Optional[str] = None,
+) -> list[dict]:
+    """
+    Find similar historical intel for context.
+    
+    Useful for understanding how current news relates to past events.
+    
+    Args:
+        query: The query text
+        top_k: Number of results
+        competitor_filter: Optional competitor to filter by
+        
+    Returns:
+        List of similar historical items
+    """
+    try:
+        collection = get_collection()
+        
+        where = None
+        if competitor_filter:
+            where = {"competitor_id": competitor_filter}
+        
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            where=where,
+            include=["documents", "metadatas", "distances"],
+        )
+        
+        items = []
+        if results["ids"] and results["ids"][0]:
+            for i, intel_id in enumerate(results["ids"][0]):
+                distance = results["distances"][0][i] if results["distances"] else 0
+                items.append({
+                    "intel_id": int(intel_id),
+                    "text": results["documents"][0][i] if results["documents"] else "",
+                    "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
+                    "similarity": 1 - distance,
+                })
+        
+        return items
+    except Exception as e:
+        print(f"Error finding similar historical: {e}")
+        return []
+
+
+def store_trend(
+    trend_id: str,
+    trend_text: str,
+    metadata: dict
+) -> bool:
+    """
+    Store a trend in the history collection.
+    
+    Args:
+        trend_id: Unique trend ID (include date)
+        trend_text: Full trend description
+        metadata: Trend metadata
+        
+    Returns:
+        True if successful
+    """
+    try:
+        collection = get_trends_collection()
+        collection.upsert(
+            ids=[trend_id],
+            documents=[trend_text],
+            metadatas=[metadata],
+        )
+        return True
+    except Exception as e:
+        print(f"Error storing trend: {e}")
+        return False
+
+
+def get_trend_evolution(trend_name: str, top_k: int = 10) -> list[dict]:
+    """
+    Get historical evolution of a trend.
+    
+    Args:
+        trend_name: Name of the trend to track
+        top_k: Number of historical records
+        
+    Returns:
+        List of historical trend data
+    """
+    try:
+        collection = get_trends_collection()
+        
+        results = collection.query(
+            query_texts=[trend_name],
+            n_results=top_k,
+            include=["documents", "metadatas", "distances"],
+        )
+        
+        items = []
+        if results["ids"] and results["ids"][0]:
+            for i, trend_id in enumerate(results["ids"][0]):
+                items.append({
+                    "trend_id": trend_id,
+                    "text": results["documents"][0][i] if results["documents"] else "",
+                    "metadata": results["metadatas"][0][i] if results["metadatas"] else {},
+                    "similarity": 1 - (results["distances"][0][i] if results["distances"] else 0),
+                })
+        
+        return items
+    except Exception as e:
+        print(f"Error getting trend evolution: {e}")
+        return []
+
+
+def build_context_for_analysis(
+    intel_items: list[dict],
+    max_historical: int = 10
+) -> str:
+    """
+    Build a rich context string for analysis by finding related historical intel.
+    
+    Args:
+        intel_items: Current intel items
+        max_historical: Max historical items to include
+        
+    Returns:
+        Context string
+    """
+    context_parts = []
+    seen_ids = set()
+    
+    for item in intel_items[:5]:  # Use top 5 items as seeds
+        summary = item.get("summary", "") or item.get("text", "")
+        if not summary:
+            continue
+        
+        historical = find_similar_historical(summary, top_k=3)
+        for h in historical:
+            if h["intel_id"] not in seen_ids and h["similarity"] > 0.6:
+                seen_ids.add(h["intel_id"])
+                context_parts.append(f"- [Historical] {h['text']}")
+                
+                if len(context_parts) >= max_historical:
+                    break
+        
+        if len(context_parts) >= max_historical:
+            break
+    
+    if context_parts:
+        return "Historical context from vector memory:\n" + "\n".join(context_parts)
+    
+    return ""
+

@@ -1,15 +1,16 @@
 """
 Domain Agents for Tubi Radar.
 
-Specialized agents for different competitive intelligence perspectives:
-- Product Agent: Platform, UX, devices, technology
-- Content Agent: Shows, movies, content deals
-- Marketing Agent: Campaigns, branding, partnerships
-- AI/Ads Agent: Advertising technology, AI features, monetization
+Specialized agents aligned to intel categories from the Tubi Radar proposal:
+- Strategic Agent: M&A, partnerships, financial performance
+- Product Agent: Platform features, UX, technology
+- Content Agent: Content deals, library, originals
+- Marketing Agent: Campaigns, branding, positioning
+- AI/Platform Agent: AI features, CTV, ad tech
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -30,7 +31,7 @@ class DomainAgent(BaseAgent):
     # Override in subclasses
     agent_role = "domain_agent"
     domain_name = "General"
-    category_filter: list[str] = []
+    category_filter: List[str] = []
     system_prompt = ""
     
     @property
@@ -40,7 +41,7 @@ class DomainAgent(BaseAgent):
             return self._temperature_override
         return self.config.global_config.temperature.analysis
     
-    def _build_intel_prompt(self, intel_items: list[dict]) -> str:
+    def _build_intel_prompt(self, intel_items: List[dict]) -> str:
         """Build the prompt for intel analysis."""
         lines = [f"Analyze the following {len(intel_items)} intel items from your {self.domain_name} perspective:\n"]
         
@@ -59,7 +60,7 @@ class DomainAgent(BaseAgent):
         lines.append("---\nProvide your analysis for each intel item.")
         return "\n".join(lines)
     
-    def _analyze_batch(self, intel_items: list[dict]) -> list[DomainAnnotation]:
+    def _analyze_batch(self, intel_items: List[dict]) -> List[DomainAnnotation]:
         """
         Analyze a batch of intel items.
         
@@ -141,6 +142,46 @@ class DomainAgent(BaseAgent):
         }
 
 
+class StrategicAgent(DomainAgent):
+    """
+    Strategic Intelligence Agent.
+    
+    Focuses on M&A, partnerships, financial performance, market positioning.
+    """
+    
+    agent_role = "strategic_agent"
+    domain_name = "Strategic Updates"
+    category_filter = ["strategic", "pricing"]
+    
+    system_prompt = """You are the Strategic Intelligence Agent for Tubi.
+
+You focus on **strategic moves, M&A activity, partnerships, and financial performance**.
+
+Tubi is a free ad-supported streaming service owned by Fox Corporation. You analyze competitive intel about major strategic shifts that could affect Tubi's market position.
+
+For each intel item:
+1. Consider the strategic implications: market consolidation, competitive positioning, financial health.
+2. Evaluate impact on the streaming/AVOD landscape.
+
+Provide for each item:
+
+1. **so_what**: 2-3 sentences explaining the strategic implications for Tubi. Consider market dynamics, competitive positioning, and potential ripple effects.
+
+2. **risk_or_opportunity**: 
+   - Risk: Strategic move that threatens Tubi's position
+   - Opportunity: Opening for Tubi to capitalize
+   - Neutral: Standard industry activity
+
+3. **priority**:
+   - P0: Major strategic shift requiring executive attention
+   - P1: Significant move worth monitoring closely
+   - P2: Routine strategic activity
+
+4. **suggested_action**: Optional - specific strategic response or analysis needed.
+
+Focus on insights that inform Tubi's strategic direction and executive decision-making."""
+
+
 class ProductAgent(DomainAgent):
     """
     Product Intelligence Agent.
@@ -149,40 +190,43 @@ class ProductAgent(DomainAgent):
     """
     
     agent_role = "product_agent"
-    domain_name = "Product & UX"
-    category_filter = ["product", "ai_ads"]  # Also includes ad product
+    domain_name = "Product & Technology"
+    category_filter = ["product"]
     
     system_prompt = """You are the Product Intelligence Agent for Tubi.
 
-You only care about **product, UX, platform, and ad product** implications.
+You focus on **product features, UX, platform capabilities, and technology innovation**.
 
-Tubi is a free ad-supported streaming service. You analyze competitive intel to understand how competitor product moves might affect Tubi's platform, apps, and user experience.
+Tubi is a free ad-supported streaming service. You analyze competitive intel about product and technology moves that could affect Tubi's platform and user experience.
 
 For each intel item:
-1. Read the summarized intel and its category, impact, and relevance scores.
-2. Ignore minor marketing fluff or generic industry commentary.
+1. Consider product implications: feature parity, UX innovation, technical capabilities.
+2. Evaluate how this affects user expectations and competitive differentiation.
 
 Provide for each item:
 
-1. **so_what**: 2-3 sentences explaining why this matters (or not) to Tubi's product or ad experience. Be specific about implications.
+1. **so_what**: 2-3 sentences explaining the product implications for Tubi. Be specific about features, UX patterns, or technical capabilities.
 
-2. **risk_or_opportunity**: Does this mainly represent a risk (competitor gaining advantage), an opportunity (chance for Tubi to differentiate or learn), or is it neutral?
+2. **risk_or_opportunity**:
+   - Risk: Competitor gaining product advantage
+   - Opportunity: Chance for Tubi to differentiate or learn
+   - Neutral: Standard product evolution
 
-3. **priority**: 
-   - P0: Urgent/strategic - requires immediate attention or response
-   - P1: Important but not urgent - should be on the roadmap or monitored
-   - P2: Nice-to-know - interesting but low priority
+3. **priority**:
+   - P0: Major product move requiring immediate attention
+   - P1: Notable feature worth roadmap consideration
+   - P2: Routine product update
 
-4. **suggested_action**: Optional but valuable - a concrete next step (e.g., "Compare Roku's Live TV row to Tubi's home screen layout in a heuristic review within 2 weeks").
+4. **suggested_action**: Optional - specific product response, A/B test, or analysis.
 
-Focus on actionable insights that product and engineering teams can use."""
+Focus on actionable insights for product and engineering teams."""
 
 
 class ContentAgent(DomainAgent):
     """
     Content Intelligence Agent.
     
-    Focuses on shows, movies, content deals, library changes, and originals.
+    Focuses on content deals, library composition, originals, licensing.
     """
     
     agent_role = "content_agent"
@@ -191,31 +235,31 @@ class ContentAgent(DomainAgent):
     
     system_prompt = """You are the Content Intelligence Agent for Tubi.
 
-You care about **content strategy, library composition, content deals, and originals**.
+You focus on **content strategy, library composition, content deals, and original programming**.
 
-Tubi is a free ad-supported streaming service with a large library of movies and TV shows. You analyze competitive intel to understand how competitor content moves might affect Tubi's content positioning.
+Tubi is a free ad-supported streaming service with a large library of movies and TV shows. You analyze competitive intel about content moves that affect the AVOD content landscape.
 
 For each intel item:
-1. Read the summarized intel about content deals, library changes, or original programming.
-2. Consider how this affects the competitive landscape for AVOD/FAST content.
+1. Consider content implications: exclusive deals, genre gaps, audience targeting.
+2. Evaluate how this affects content availability and competitive positioning.
 
 Provide for each item:
 
-1. **so_what**: 2-3 sentences explaining the content strategy implications for Tubi. Consider exclusive deals, genre gaps, audience targeting.
+1. **so_what**: 2-3 sentences on the content strategy implications for Tubi. Consider licensing, genre coverage, and audience appeal.
 
-2. **risk_or_opportunity**: 
-   - Risk: Competitor acquiring content that would have been valuable for Tubi
-   - Opportunity: Chance to acquire similar content or differentiate
-   - Neutral: Standard industry moves with limited Tubi impact
+2. **risk_or_opportunity**:
+   - Risk: Competitor acquiring valuable content
+   - Opportunity: Content Tubi could acquire or differentiate with
+   - Neutral: Standard content activity
 
 3. **priority**:
-   - P0: Major content moves that require immediate content team awareness
-   - P1: Notable deals that should inform content strategy
+   - P0: Major content move requiring content team attention
+   - P1: Notable deal worth tracking
    - P2: Routine content news
 
-4. **suggested_action**: Optional - concrete content acquisition or programming suggestions.
+4. **suggested_action**: Optional - specific content acquisition or programming recommendation.
 
-Focus on insights the content and programming teams can action."""
+Focus on insights for content and programming teams."""
 
 
 class MarketingAgent(DomainAgent):
@@ -226,76 +270,76 @@ class MarketingAgent(DomainAgent):
     """
     
     agent_role = "marketing_agent"
-    domain_name = "Marketing & Positioning"
+    domain_name = "Marketing & Creative"
     category_filter = ["marketing"]
     
     system_prompt = """You are the Marketing Intelligence Agent for Tubi.
 
-You focus on **marketing campaigns, brand positioning, partnerships, and promotional strategies**.
+You focus on **marketing campaigns, brand positioning, partnerships, and creative strategies**.
 
-Tubi is a free ad-supported streaming service. You analyze competitive intel to understand how competitors are positioning themselves and what marketing approaches are gaining traction.
+Tubi is a free ad-supported streaming service. You analyze competitive intel about marketing and brand moves that affect perception and market positioning.
 
 For each intel item:
-1. Read the summarized intel about marketing campaigns, partnerships, or brand moves.
-2. Consider the messaging, target audience, and strategic positioning.
+1. Consider marketing implications: messaging, target audience, brand perception.
+2. Evaluate effectiveness and potential response strategies.
 
 Provide for each item:
 
-1. **so_what**: 2-3 sentences on what this means for Tubi's marketing and brand positioning. What message is the competitor sending? How might it affect viewer perception?
+1. **so_what**: 2-3 sentences on marketing implications for Tubi. Consider messaging, audience targeting, and brand positioning.
 
 2. **risk_or_opportunity**:
-   - Risk: Competitor messaging that could diminish Tubi's brand perception
-   - Opportunity: Chance for Tubi to counter-position or learn from effective campaigns
+   - Risk: Competitor messaging that diminishes Tubi's brand
+   - Opportunity: Chance to counter-position or learn from effective campaigns
    - Neutral: Standard marketing activity
 
 3. **priority**:
-   - P0: Major brand moves requiring marketing team response
-   - P1: Notable campaigns worth monitoring or learning from
+   - P0: Major brand move requiring marketing response
+   - P1: Notable campaign worth learning from
    - P2: Routine marketing news
 
-4. **suggested_action**: Optional - specific marketing responses or campaign ideas.
+4. **suggested_action**: Optional - specific marketing response or campaign idea.
 
-Focus on brand and marketing insights that inform Tubi's go-to-market strategy."""
+Focus on insights for marketing and brand teams."""
 
 
-class AIAdsAgent(DomainAgent):
+class AIPlatformAgent(DomainAgent):
     """
-    AI & Advertising Intelligence Agent.
+    AI & Platform Intelligence Agent.
     
-    Focuses on advertising technology, AI features, targeting, and monetization.
+    Focuses on AI features, CTV integration, ad tech, and platform placement.
     """
     
-    agent_role = "ai_ads_agent"
-    domain_name = "AI & Ads / Pricing"
+    agent_role = "ai_platform_agent"
+    domain_name = "AI & Platform Integration"
     category_filter = ["ai_ads", "pricing"]
     
-    system_prompt = """You are the AI & Advertising Intelligence Agent for Tubi.
+    system_prompt = """You are the AI & Platform Intelligence Agent for Tubi.
 
-You focus on **advertising technology, AI/ML features, ad products, targeting capabilities, and pricing/monetization**.
+You focus on **AI/ML capabilities, CTV platform integration, ad technology, and monetization**.
 
-Tubi is a free ad-supported streaming service where advertising is the primary revenue driver. You analyze competitive intel about ad tech innovation and pricing strategies.
+Tubi is a free ad-supported streaming service where advertising is the primary revenue driver. You analyze competitive intel about AI innovation and platform/ad tech developments.
 
 For each intel item:
-1. Read the summarized intel about ad technology, AI features, or pricing changes.
-2. Consider the implications for Tubi's ad business and technology roadmap.
+1. Consider AI/platform implications: personalization, ad targeting, CTV placement.
+2. Evaluate technology investment priorities and competitive advantages.
 
 Provide for each item:
 
-1. **so_what**: 2-3 sentences on the ad tech or monetization implications. How might this affect advertiser preference? What capabilities are competitors building?
+1. **so_what**: 2-3 sentences on AI/platform implications for Tubi. Consider technology capabilities, advertiser value, and platform relationships.
 
 2. **risk_or_opportunity**:
-   - Risk: Competitor ad tech that could attract advertisers away from Tubi
+   - Risk: Competitor gaining AI/platform advantage
    - Opportunity: Technology Tubi should consider or gaps to exploit
    - Neutral: Standard industry evolution
 
 3. **priority**:
-   - P0: Major ad tech moves requiring immediate ad product team attention
-   - P1: Notable capabilities worth building or countering
-   - P2: Routine ad industry news
+   - P0: Major AI/platform move requiring immediate attention
+   - P1: Notable capability worth building or monitoring
+   - P2: Routine tech industry news
 
-4. **suggested_action**: Optional - specific ad product or technology recommendations.
+4. **suggested_action**: Optional - specific technology investment or partnership recommendation.
 
-Focus on insights that inform Tubi's ad product strategy and technology investments."""
+Focus on insights for ad tech, data science, and platform partnership teams."""
 
 
 def run_all_domain_agents(run_id: int) -> dict:
@@ -311,15 +355,19 @@ def run_all_domain_agents(run_id: int) -> dict:
     results = {}
     
     agents = [
+        StrategicAgent(),
         ProductAgent(),
         ContentAgent(),
         MarketingAgent(),
-        AIAdsAgent(),
+        AIPlatformAgent(),
     ]
     
     for agent in agents:
         print(f"\n[{agent.agent_role}] Starting analysis...")
-        results[agent.agent_role] = agent.run(run_id=run_id)
+        try:
+            results[agent.agent_role] = agent.run(run_id=run_id)
+        except Exception as e:
+            print(f"[{agent.agent_role}] Error: {e}")
+            results[agent.agent_role] = {"error": str(e)}
     
     return results
-

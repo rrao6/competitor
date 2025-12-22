@@ -25,44 +25,53 @@ class UnderstandingAgent(BaseAgent):
     The Understanding Agent converts articles into intel.
     
     For each article:
-    1. Summarizes from Tubi's perspective
+    1. Summarizes the key facts concisely
     2. Assigns a category
-    3. Scores relevance and impact
+    3. Scores relevance and impact intelligently
     4. Extracts key entities
     """
     
     agent_role = "understanding_agent"
-    system_prompt = """You are the Understanding Agent for Tubi Radar, a competitive intelligence system for Tubi (a free ad-supported streaming service).
+    system_prompt = """You are an expert competitive intelligence analyst for Tubi, a leading free ad-supported streaming (FAST) service competing with Netflix, Roku, Pluto TV, Peacock, and others.
 
-For each article you see, do NOT invent facts. Base your analysis only on the provided content.
+Your job is to analyze articles and extract actionable competitive intelligence. Be SMART and SELECTIVE.
 
-For each article, you must:
+## SCORING GUIDELINES (BE STRICT)
 
-1. **Summary**: Write 2-3 sentences from Tubi's perspective: what happened? who did it? what does it change for the streaming/AVOD industry?
+**Relevance Score (0-10)** - How relevant is this to streaming/CTV/AVOD?
+- 0-2: Not relevant (general tech, unrelated industries)
+- 3-4: Tangentially relevant (broad entertainment news, celebrity gossip)
+- 5-6: Moderately relevant (general streaming industry news)
+- 7-8: Highly relevant (direct competitor moves, AVOD/FAST specific)
+- 9-10: Critical (directly affects Tubi's market, major competitive shift)
 
-2. **Category**: Assign exactly ONE category:
-   - `product`: Platform features, UX, apps, devices, technology
-   - `content`: Shows, movies, content deals, library changes, originals
-   - `marketing`: Campaigns, branding, partnerships, promotions
-   - `ai_ads`: Advertising technology, AI features, ad products, targeting
-   - `pricing`: Subscription tiers, pricing changes, bundle deals
-   - `noise`: Irrelevant, off-topic, or not actionable for Tubi
+**Impact Score (0-10)** - How significant is this strategically?
+- 0-2: Trivial (minor updates, routine announcements)
+- 3-4: Low impact (small features, incremental changes)
+- 5-6: Moderate (notable moves worth tracking)
+- 7-8: High impact (significant strategic moves, major launches)
+- 9-10: Critical (market-changing, requires immediate attention)
 
-3. **Relevance Score (0-10)**:
-   - 0 = Clearly irrelevant to streaming/Tubi
-   - 5 = Moderately relevant, general industry news
-   - 10 = Extremely relevant to Tubi's product, content, or ad strategy
+## CATEGORIES
+- `strategic`: M&A, major partnerships, earnings, subscriber/viewer metrics, executive moves, major corporate announcements
+- `product`: Platform features, apps, devices, UX changes, technical capabilities
+- `content`: Content deals, original productions, library additions, sports/live rights
+- `marketing`: Campaigns, brand positioning, promotional partnerships
+- `ai_ads`: Ad tech innovations, AI features, targeting capabilities, ad formats, CTV advertising
+- `pricing`: Subscription changes, bundle deals, tier modifications
+- `noise`: NOT relevant - celebrity news, gossip, reviews, general entertainment not about platforms
 
-4. **Impact Score (0-10)**:
-   - 0 = Trivia, no strategic significance
-   - 5 = Worth noting, moderate industry impact
-   - 10 = Must-know strategic move that could affect Tubi's position
+## CRITICAL RULES
+1. Mark celebrity/talent news as `noise` unless it's about a major exclusive deal
+2. Mark show reviews/ratings as `noise` unless announcing major viewership milestones
+3. Be GENEROUS with scoring for actual competitor platform moves
+4. Focus on WHAT competitors are DOING, not general industry commentary
+5. Extract the core strategic insight, not just summarize the headline
 
-5. **Entities**: Extract key entities mentioned (companies, products, platforms, shows, executives).
+## SUMMARY FORMAT
+Write 1-2 concise sentences: What happened + Why it matters competitively. No fluff."""
 
-Be concise and strategic. Focus on what matters for a streaming competitor analyst."""
-
-    def __init__(self, batch_size: int = 10, **kwargs):
+    def __init__(self, batch_size: int = 15, **kwargs):
         """
         Initialize the Understanding Agent.
         
@@ -74,20 +83,22 @@ Be concise and strategic. Focus on what matters for a streaming competitor analy
     
     def _build_articles_prompt(self, articles: list[dict]) -> str:
         """Build the prompt for a batch of articles."""
-        lines = ["Analyze the following articles:\n"]
+        lines = ["Analyze these articles. Be selective - only high-scoring items matter.\n"]
         
         for i, article in enumerate(articles, 1):
             lines.append(f"---\n**Article {i}** (ID: {article['id']})")
-            lines.append(f"- Competitor: {article['competitor_id']}")
-            lines.append(f"- Source: {article['source_label']}")
-            lines.append(f"- Title: {article['title']}")
-            lines.append(f"- URL: {article['url']}")
-            if article.get('published_at'):
-                lines.append(f"- Published: {article['published_at']}")
-            lines.append(f"\nContent:\n{article.get('raw_snippet', '[No content available]')[:1500]}")
+            lines.append(f"Competitor: {article['competitor_id']}")
+            lines.append(f"Source: {article['source_label']}")
+            lines.append(f"Title: {article['title']}")
+            
+            snippet = article.get('raw_snippet', '') or ''
+            if snippet:
+                # Clean and truncate snippet
+                snippet = snippet.replace('\n', ' ').strip()[:1200]
+                lines.append(f"Content: {snippet}")
             lines.append("")
         
-        lines.append("---\nProvide your classification for each article.")
+        lines.append("---\nClassify each article. Remember: be strict with scores, generous only for real strategic moves.")
         return "\n".join(lines)
     
     def _classify_batch(self, articles: list[dict]) -> list[ArticleClassification]:
@@ -170,24 +181,8 @@ Be concise and strategic. Focus on what matters for a streaming competitor analy
         else:
             stored_count = 0
         
-        # Index embeddings
+        # Index embeddings (deferred to Memory Agent in full pipeline)
         embeddings_indexed = 0
-        if index_embeddings and all_classifications:
-            print("[UnderstandingAgent] Indexing embeddings...")
-            items_to_embed = []
-            for c in all_classifications:
-                items_to_embed.append({
-                    "intel_id": c.article_id,  # Note: We need the intel ID, not article ID
-                    "text": c.summary,
-                    "metadata": {
-                        "category": c.category,
-                        "relevance_score": c.relevance_score,
-                        "impact_score": c.impact_score,
-                    },
-                })
-            # TODO: Get actual intel IDs after storage for proper embedding
-            # For Phase 1, skip embedding indexing (handled in Phase 2 with Memory Agent)
-            print("[UnderstandingAgent] Embedding indexing deferred to Memory Agent (Phase 2)")
         
         return {
             "articles_processed": len(articles),
@@ -209,4 +204,3 @@ def run_understanding(run_id: int, index_embeddings: bool = False) -> dict:
     """
     agent = UnderstandingAgent()
     return agent.run(run_id=run_id, index_embeddings=index_embeddings)
-

@@ -23,7 +23,7 @@ class ArticleClassification(BaseModel):
     summary: str = Field(
         description="2-3 sentence summary from Tubi's perspective: what happened, who did it, what does it change"
     )
-    category: Literal["product", "content", "marketing", "ai_ads", "pricing", "noise"] = Field(
+    category: Literal["strategic", "product", "content", "marketing", "ai_ads", "pricing", "noise"] = Field(
         description="Primary category for this intel"
     )
     relevance_score: float = Field(

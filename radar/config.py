@@ -30,15 +30,17 @@ class CompetitorConfig(BaseModel):
     """Configuration for a single competitor."""
     id: str
     name: str
+    category: str = "streaming"  # streaming, ctv, ai, social
     feeds: List[FeedConfig] = Field(default_factory=list)
     search_queries: List[str] = Field(default_factory=list)
 
 
 class ModelConfig(BaseModel):
     """OpenAI model configuration."""
-    reasoning: str = "o3-mini"
-    structured: str = "gpt-4.1"
+    reasoning: str = "gpt-4o"
+    structured: str = "gpt-4o"
     embedding: str = "text-embedding-3-small"
+    web_search: str = "gpt-4o"
 
 
 class TemperatureConfig(BaseModel):
@@ -62,23 +64,34 @@ class DedupConfig(BaseModel):
 
 class GlobalConfig(BaseModel):
     """Global configuration settings."""
-    lookback_hours: int = 24
-    max_articles_per_feed: int = 30
-    min_relevance_score: float = 4.0
-    min_impact_score: float = 4.0
-    min_novelty_score: float = 0.3
+    lookback_hours: int = 48
+    max_articles_per_feed: int = 20
+    feed_timeout: int = 15
+    max_concurrent_feeds: int = 10
+    min_relevance_score: float = 3.5
+    min_impact_score: float = 3.5
+    min_novelty_score: float = 0.2
     max_items_total: int = 100
     max_report_items: int = 20
     enable_web_search: bool = True
-    max_web_searches: int = 10
+    max_web_searches: int = 15
     models: ModelConfig = Field(default_factory=ModelConfig)
     temperature: TemperatureConfig = Field(default_factory=TemperatureConfig)
     chroma: ChromaConfig = Field(default_factory=ChromaConfig)
     dedup: DedupConfig = Field(default_factory=DedupConfig)
 
 
+class TubiConfig(BaseModel):
+    """Configuration for Tubi (our company) tracking."""
+    id: str = "tubi"
+    name: str = "Tubi"
+    feeds: List[FeedConfig] = Field(default_factory=list)
+    search_queries: List[str] = Field(default_factory=list)
+
+
 class RadarConfig(BaseModel):
-    """Root configuration model for Tubi Radar."""
+    """Root configuration model for Competitor Monitor."""
+    tubi: Optional[TubiConfig] = None
     competitors: List[CompetitorConfig] = Field(default_factory=list)
     industry_feeds: List[FeedConfig] = Field(default_factory=list)
     global_config: GlobalConfig = Field(default_factory=GlobalConfig, alias="global")
@@ -165,4 +178,29 @@ def get_all_feeds() -> List[Tuple[str, FeedConfig]]:
         feeds.append(("industry", feed))
     
     return feeds
+
+
+def get_tubi_feeds() -> List[Tuple[str, FeedConfig]]:
+    """
+    Get Tubi-specific feeds for our company tracking.
+    
+    Returns:
+        List of ('tubi', feed_config) tuples.
+    """
+    config = get_config()
+    feeds = []
+    
+    if config.tubi:
+        for feed in config.tubi.feeds:
+            feeds.append(("tubi", feed))
+    
+    return feeds
+
+
+def get_tubi_search_queries() -> List[str]:
+    """Get Tubi-specific search queries."""
+    config = get_config()
+    if config.tubi:
+        return config.tubi.search_queries
+    return []
 

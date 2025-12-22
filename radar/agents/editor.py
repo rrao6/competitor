@@ -1,8 +1,7 @@
 """
 Editor Agent (Executive Synthesizer) for Tubi Radar.
 
-Responsible for producing the final daily/weekly radar report
-from intel and annotations.
+Produces a clean, actionable executive brief - not verbose analysis.
 """
 from __future__ import annotations
 
@@ -13,82 +12,85 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from radar.agents.base import BaseAgent
 from radar.config import get_config
-from radar.schemas import ReportStructure
 from radar.tools.db_tools import get_all_intel_for_run, create_report_file
 
 
 class EditorAgent(BaseAgent):
     """
-    The Editor Agent synthesizes intel into a human-readable report.
+    The Editor Agent synthesizes intel into a concise executive brief.
     
-    Produces a Markdown report organized by:
-    1. Top Moves (3-5 key items)
-    2. Product & UX section
-    3. Content & Library section
-    4. Marketing & Positioning section
-    5. AI & Ads / Pricing section
-    6. Suggested Actions
+    Output format:
+    1. Executive Summary (3-5 bullet points of what matters)
+    2. Key Moves by competitor
+    3. Quick take on implications
+    
+    NO verbose "so what for Tubi" on every item - just the facts and one final synthesis.
     """
     
     agent_role = "editor_agent"
-    system_prompt = """You are the Executive Editor for Tubi Radar, generating a competitive intelligence digest for senior product, content, and marketing leaders at Tubi.
+    system_prompt = """You are an executive intelligence briefer for Tubi, a leading free ad-supported streaming service.
 
-Tubi is a free ad-supported streaming television (FAST) service. Your audience needs to understand what competitors are doing and how it might affect Tubi's strategy.
+Your audience: Senior executives who need the bottom line in 2 minutes.
 
-You will be given structured intel and agent annotations. Your goals:
+## OUTPUT FORMAT
 
-1. **Top Moves**: Highlight 3-5 key moves Tubi should care about most. These are the headlines.
+Create a clean, scannable brief with this structure:
 
-2. **Organize by Section**: Group remaining intel into:
-   - Product & UX: Platform features, apps, devices, technology
-   - Content & Library: Shows, movies, content deals, originals
-   - Marketing & Positioning: Campaigns, branding, partnerships
-   - AI & Ads / Pricing: Ad tech, pricing, monetization
+### EXECUTIVE SUMMARY
+3-5 bullet points of the most important things that happened. Lead with the headline, not the analysis.
 
-3. **Writing Style**:
-   - Be clear, concise, without hype or filler
-   - Include competitor names and dates
-   - Focus on "so what" for Tubi
-   - Highlight risks and opportunities where relevant
+### KEY MOVES
+Group by competitor. For each item:
+- **[Competitor]**: What they did (one line)
 
-4. **Suggested Actions**: Surface actionable next steps where they add value.
+Only include genuinely significant moves. Skip the noise.
 
-Output clean, professional Markdown suitable for executives."""
+### WATCH LIST
+2-3 things to monitor going forward (optional, only if there are clear trends).
+
+## RULES
+1. BE CONCISE - executives skim, they don't read essays
+2. LEAD WITH FACTS - what happened, who did it, when
+3. NO FILLER - skip "this is important because..." just state what matters
+4. NO REPETITION - each point once, grouped logically
+5. PRIORITIZE - most important first
+6. SKIP THE OBVIOUS - don't explain what Netflix is
+
+Write like a Bloomberg terminal alert, not a strategy memo."""
 
     @property
     def temperature(self) -> float:
-        """Use higher temperature for more creative report writing."""
+        """Use moderate temperature for report writing."""
         if self._temperature_override is not None:
             return self._temperature_override
-        return self.config.global_config.temperature.report
+        return 0.3
     
     def _build_intel_prompt(self, intel_items: list[dict]) -> str:
         """Build the prompt with intel data."""
         if not intel_items:
-            return "No significant intel to report for this period."
+            return "No significant intel to report."
         
-        lines = [f"Today's date: {datetime.utcnow().strftime('%Y-%m-%d')}\n"]
-        lines.append(f"Total intel items: {len(intel_items)}\n")
-        lines.append("---\n")
+        lines = [f"Date: {datetime.utcnow().strftime('%B %d, %Y')}\n"]
+        lines.append(f"Intel items to synthesize: {len(intel_items)}\n")
         
+        # Group by competitor
+        by_competitor = {}
         for item in intel_items:
-            lines.append(f"**Intel #{item['id']}**")
-            lines.append(f"- Competitor: {item['competitor_id']}")
-            lines.append(f"- Category: {item['category']}")
-            lines.append(f"- Impact: {item['impact_score']}/10 | Relevance: {item['relevance_score']}/10")
-            lines.append(f"- Title: {item['title']}")
-            lines.append(f"- Summary: {item['summary']}")
-            
-            if item.get('annotations'):
-                lines.append("\nAgent Perspectives:")
-                for ann in item['annotations']:
-                    lines.append(f"  - [{ann['agent_role']}] {ann['priority']}: {ann['so_what']}")
-                    if ann.get('suggested_action'):
-                        lines.append(f"    → Action: {ann['suggested_action']}")
-            
-            lines.append("")
+            comp = item['competitor_id']
+            if comp not in by_competitor:
+                by_competitor[comp] = []
+            by_competitor[comp].append(item)
         
-        lines.append("---\nGenerate the executive report based on this intel.")
+        for comp, items in sorted(by_competitor.items()):
+            lines.append(f"\n## {comp.upper()}")
+            for item in items:
+                impact = item['impact_score']
+                relevance = item['relevance_score']
+                lines.append(f"- [{item['category']}] (Impact: {impact}, Relevance: {relevance})")
+                lines.append(f"  Title: {item['title']}")
+                lines.append(f"  Summary: {item['summary']}")
+        
+        lines.append("\n---\nSynthesize into a concise executive brief.")
         return "\n".join(lines)
     
     def _generate_report_markdown(self, intel_items: list[dict]) -> str:
@@ -96,30 +98,25 @@ Output clean, professional Markdown suitable for executives."""
         Generate the report using the LLM.
         
         Args:
-            intel_items: List of intel dictionaries with annotations
+            intel_items: List of intel dictionaries
         
         Returns:
             Markdown report content
         """
-        config = get_config()
         date_str = datetime.utcnow().strftime("%Y-%m-%d")
+        date_full = datetime.utcnow().strftime("%B %d, %Y")
         
         # Handle empty case
         if not intel_items:
-            return f"""# Tubi Radar - {date_str}
+            return f"""# Tubi Radar Brief — {date_full}
 
 ## Executive Summary
 
-No significant competitive intelligence to report for this period.
-
-All monitored feeds were checked, but no items met the relevance and impact thresholds.
+No significant competitive moves detected in this period.
 
 ---
-*Report generated by Tubi Radar*
+*Generated by Tubi Radar*
 """
-        
-        # For Phase 1, generate a simpler report without full structured output
-        # Phase 2 will use ReportStructure for more structured generation
         
         llm = self.get_llm()
         
@@ -132,24 +129,30 @@ All monitored feeds were checked, but no items met the relevance and impact thre
             response = llm.invoke(messages)
             report_content = response.content
             
-            # Ensure title is present
+            # Ensure proper header
             if not report_content.strip().startswith("#"):
-                report_content = f"# Tubi Radar - {date_str}\n\n{report_content}"
+                report_content = f"# Tubi Radar Brief — {date_full}\n\n{report_content}"
+            else:
+                # Replace any existing title with our standard format
+                lines = report_content.split('\n')
+                if lines[0].startswith('# '):
+                    lines[0] = f"# Tubi Radar Brief — {date_full}"
+                report_content = '\n'.join(lines)
             
             # Add footer
-            report_content += f"\n\n---\n*Report generated by Tubi Radar on {date_str}*\n"
+            report_content += f"\n\n---\n*Generated {date_str} by Tubi Radar*\n"
             
             return report_content
         except Exception as e:
             print(f"[EditorAgent] Error generating report: {e}")
-            return f"""# Tubi Radar - {date_str}
+            return f"""# Tubi Radar Brief — {date_full}
 
 ## Error
 
 Failed to generate report: {str(e)}
 
 ---
-*Report generated by Tubi Radar*
+*Generated by Tubi Radar*
 """
     
     def run(
@@ -171,20 +174,22 @@ Failed to generate report: {str(e)}
         """
         config = get_config()
         
-        min_relevance = min_relevance or config.global_config.min_relevance_score
-        min_impact = min_impact or config.global_config.min_impact_score
+        # Use lower thresholds to capture more data
+        min_relevance = min_relevance or 4.0
+        min_impact = min_impact or 4.0
         
-        # Get all qualifying intel with annotations
+        # Get all qualifying intel
         intel_items = get_all_intel_for_run(
             run_id=run_id,
             min_relevance=min_relevance,
             min_impact=min_impact,
         )
         
-        # Limit to max report items
-        intel_items = intel_items[:config.global_config.max_report_items]
+        # Sort by impact, take top items
+        intel_items = sorted(intel_items, key=lambda x: x['impact_score'], reverse=True)
+        intel_items = intel_items[:30]  # More items for better synthesis
         
-        print(f"[EditorAgent] Generating report from {len(intel_items)} intel items...")
+        print(f"[EditorAgent] Generating brief from {len(intel_items)} intel items...")
         
         # Generate report
         report_markdown = self._generate_report_markdown(intel_items)
@@ -216,4 +221,3 @@ def run_editor(run_id: int) -> dict:
     """
     agent = EditorAgent()
     return agent.run(run_id=run_id)
-

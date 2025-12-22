@@ -1,0 +1,2675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitor Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --tubi-purple: #8C00E5;
+            --tubi-purple-light: #A933FF;
+            --tubi-purple-dark: #45009D;
+            --tubi-purple-glow: rgba(140, 0, 229, 0.25);
+            
+            --bg-primary: #000000;
+            --bg-secondary: #0D0D0D;
+            --bg-card: #141414;
+            --bg-elevated: #1A1A1A;
+            --bg-hover: #222222;
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --text-muted: #666666;
+            
+            --border-color: #2A2A2A;
+            --border-subtle: #1F1F1F;
+            
+            --success: #00C853;
+            --warning: #FFB300;
+            --info: #00B8D4;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           HEADER
+           ═══════════════════════════════════════════════════════════════ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 40px;
+        }
+
+        .header-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--tubi-purple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            box-shadow: 0 0 20px var(--tubi-purple-glow);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--tubi-purple);
+        }
+
+        .nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+            background: none;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--bg-elevated);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           BUTTONS
+           ═══════════════════════════════════════════════════════════════ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--tubi-purple);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--tubi-purple-dark);
+            box-shadow: 0 4px 20px var(--tubi-purple-glow);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MAIN LAYOUT
+           ═══════════════════════════════════════════════════════════════ */
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 40px 80px;
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           STATS GRID
+           ═══════════════════════════════════════════════════════════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-color);
+            background: var(--bg-elevated);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .stat-value.accent { color: var(--tubi-purple); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           INTEL CARDS - HORIZONTAL SCROLL
+           ═══════════════════════════════════════════════════════════════ */
+        .intel-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .intel-row::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .intel-row::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 3px;
+        }
+
+        .intel-row::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .intel-row::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .intel-card {
+            flex: 0 0 340px;
+            scroll-snap-align: start;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .intel-card:hover {
+            border-color: var(--tubi-purple);
+            transform: translateY(-2px);
+        }
+
+        .intel-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .intel-source {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tubi-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .intel-category {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .intel-title {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .intel-summary {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .intel-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .intel-scores {
+            display: flex;
+            gap: 12px;
+        }
+
+        .score-item {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .score-item strong {
+            color: var(--text-primary);
+            margin-left: 4px;
+        }
+
+        .intel-link {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .intel-link:hover {
+            color: var(--tubi-purple);
+        }
+
+        .source-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--tubi-purple-glow);
+            color: var(--tubi-purple-light);
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           INTEL DETAIL MODAL
+           ═══════════════════════════════════════════════════════════════ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active { display: block; }
+
+        .modal-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: modalSlideIn 0.25s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .modal-header-left {
+            flex: 1;
+        }
+
+        .modal-badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .modal-competitor {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tubi-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            background: var(--tubi-purple-glow);
+            border-radius: 4px;
+        }
+
+        .modal-category {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .modal-date-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .modal-section {
+            margin-bottom: 28px;
+        }
+
+        .modal-section:last-child { margin-bottom: 0; }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .modal-summary {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .modal-scores {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .modal-score-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-score-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--tubi-purple);
+        }
+
+        .modal-score-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-score-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        .modal-sources-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .modal-source-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .modal-source-item:hover {
+            border-color: var(--tubi-purple);
+            background: var(--bg-elevated);
+        }
+
+        .modal-source-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--tubi-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .modal-source-number.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-source-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .modal-source-domain {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .modal-source-url {
+            font-size: 11px;
+            color: var(--text-muted);
+            word-break: break-all;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .modal-source-arrow {
+            font-size: 14px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        .modal-source-item:hover .modal-source-arrow {
+            color: var(--tubi-purple);
+        }
+
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .intel-card {
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+        }
+
+        .intel-card.high-impact {
+            border-color: var(--tubi-purple);
+            box-shadow: 0 0 20px var(--tubi-purple-glow);
+        }
+
+        .intel-card.high-impact .intel-title::before {
+            content: '🔥 ';
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TUBI VIEW (Our Company)
+           ═══════════════════════════════════════════════════════════════ */
+        .tubi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: linear-gradient(135deg, #45009D 0%, #8C00E5 100%);
+            border-radius: 16px;
+        }
+
+        .tubi-header-content {
+            color: white;
+        }
+
+        .tubi-header .page-title {
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .tubi-header .page-subtitle {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .tubi-stats-mini {
+            display: flex;
+            gap: 24px;
+        }
+
+        .tubi-stat-mini {
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tubi-stat-value {
+            display: block;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .tubi-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tubi-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 12px;
+        }
+
+        .tubi-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.15s;
+        }
+
+        .tubi-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .tubi-tab.active {
+            background: var(--tubi-purple);
+            color: white;
+        }
+
+        .tubi-content {
+            display: none;
+        }
+
+        .tubi-content.active {
+            display: block;
+        }
+
+        .tubi-articles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tubi-article-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: all 0.15s;
+        }
+
+        .tubi-article-item:hover {
+            border-color: var(--tubi-purple);
+        }
+
+        .tubi-article-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--tubi-purple-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .tubi-article-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tubi-article-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tubi-article-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .tubi-article-source {
+            color: var(--tubi-purple);
+            font-weight: 500;
+        }
+
+        .tubi-article-summary {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .tubi-article-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tubi-article-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tubi-article-badge.has-intel {
+            background: rgba(0, 200, 83, 0.15);
+            color: var(--success);
+        }
+
+        .tubi-article-badge.no-intel {
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ALERTS VIEW (Slack-ready)
+           ═══════════════════════════════════════════════════════════════ */
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            gap: 20px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .alerts-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .alerts-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+        }
+
+        .alert-threshold {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-threshold label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .alert-threshold select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .alert-count {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .slack-alert {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .slack-alert:hover {
+            border-color: var(--border-color);
+        }
+
+        .slack-alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .slack-alert-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slack-alert-impact {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .slack-alert-impact.critical { color: #FF4757; }
+        .slack-alert-impact.high { color: #FFA502; }
+        .slack-alert-impact.medium { color: var(--info); }
+
+        .slack-alert-competitor {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tubi-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slack-alert-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .slack-alert-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .slack-alert-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .slack-alert-body {
+            padding: 20px;
+        }
+
+        .slack-message {
+            font-family: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1d21;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid var(--tubi-purple);
+        }
+
+        .slack-message-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1d9bd1;
+            margin-bottom: 8px;
+            text-decoration: none;
+        }
+
+        .slack-message-text {
+            font-size: 14px;
+            color: #d1d2d3;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .slack-message-fields {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #383a3e;
+        }
+
+        .slack-field {
+            font-size: 12px;
+        }
+
+        .slack-field-label {
+            color: #8d8e90;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .slack-field-value {
+            color: #d1d2d3;
+        }
+
+        .slack-message-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #383a3e;
+            font-size: 12px;
+            color: #8d8e90;
+        }
+
+        .digest-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .digest-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #45009D 0%, #8C00E5 100%);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .digest-header:hover {
+            background: linear-gradient(135deg, #5500B8 0%, #A933FF 100%);
+        }
+
+        .digest-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .digest-icon {
+            font-size: 20px;
+        }
+
+        .digest-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .digest-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .digest-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: transform 0.2s;
+        }
+
+        .digest-section.collapsed .digest-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .digest-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .digest-section.collapsed .digest-content {
+            max-height: 0;
+        }
+
+        .slack-digest {
+            padding: 20px;
+        }
+
+        .slack-digest-message {
+            font-family: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1d21;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .slack-digest-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #383a3e;
+        }
+
+        .slack-digest-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            background: var(--tubi-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+        }
+
+        .slack-digest-bot {
+            font-weight: 700;
+            color: #d1d2d3;
+        }
+
+        .slack-digest-time {
+            font-size: 12px;
+            color: #8d8e90;
+        }
+
+        .slack-digest-content {
+            color: #d1d2d3;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .slack-digest-content h3 {
+            color: #d1d2d3;
+            font-size: 15px;
+            margin: 16px 0 8px;
+        }
+
+        .slack-digest-content ul {
+            margin: 8px 0 8px 20px;
+        }
+
+        .slack-digest-content li {
+            margin-bottom: 6px;
+        }
+
+        .slack-digest-content strong {
+            color: #1d9bd1;
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            animation: slideUp 0.3s ease-out;
+            z-index: 2000;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slack-settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .slack-settings-modal.active { display: flex; align-items: center; justify-content: center; }
+
+        .slack-settings-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .slack-settings-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .slack-settings-desc {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .slack-input-group {
+            margin-bottom: 20px;
+        }
+
+        .slack-input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .slack-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .slack-input:focus {
+            outline: none;
+            border-color: var(--tubi-purple);
+        }
+
+        .slack-settings-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           INTEL GRID (for Intel Feed view)
+           ═══════════════════════════════════════════════════════════════ */
+        .intel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FILTER BAR
+           ═══════════════════════════════════════════════════════════════ */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .filter-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--tubi-purple);
+        }
+
+        .filter-select option {
+            background: var(--bg-card);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           COMPETITORS GRID
+           ═══════════════════════════════════════════════════════════════ */
+        .competitors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .competitor-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .competitor-card:hover {
+            border-color: var(--border-color);
+        }
+
+        .competitor-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .competitor-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--tubi-purple) 0%, #FF6B6B 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .competitor-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .competitor-category {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .competitor-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .competitor-stat {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .competitor-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--tubi-purple);
+        }
+
+        .competitor-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TABLE
+           ═══════════════════════════════════════════════════════════════ */
+        .table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 16px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .table td {
+            padding: 16px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-elevated);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(0, 200, 83, 0.1);
+            color: var(--success);
+        }
+
+        .status-running {
+            background: rgba(0, 184, 212, 0.1);
+            color: var(--info);
+        }
+
+        .status-error {
+            background: rgba(255, 0, 51, 0.1);
+            color: var(--tubi-purple);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           REPORTS
+           ═══════════════════════════════════════════════════════════════ */
+        .reports-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            min-height: 600px;
+        }
+
+        .reports-sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .reports-sidebar-header {
+            padding: 16px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
+        }
+
+        .reports-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .report-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .report-item:hover {
+            background: var(--bg-elevated);
+        }
+
+        .report-item.active {
+            background: var(--bg-elevated);
+            border-left: 3px solid var(--tubi-purple);
+        }
+
+        .report-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .report-item-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .report-viewer {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .report-content {
+            max-width: 800px;
+        }
+
+        .report-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            color: var(--tubi-purple);
+        }
+
+        .report-content h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 40px 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .report-content h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 28px 0 12px;
+            color: var(--text-secondary);
+        }
+
+        .report-content p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .report-content ul, .report-content ol {
+            margin: 0 0 20px 24px;
+            color: var(--text-secondary);
+        }
+
+        .report-content li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .report-content strong {
+            color: var(--text-primary);
+        }
+
+        .report-content hr {
+            border: none;
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 32px 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           EMPTY STATE
+           ═══════════════════════════════════════════════════════════════ */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .header { padding: 0 20px; }
+            .main { padding: 24px 20px 60px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .reports-layout { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <img src="/static/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="logo-mark" style="display:none">CM</div>
+                <div class="logo-text">Competitor<span>Monitor</span></div>
+            </div>
+
+            <nav class="nav">
+                <button class="nav-link active" data-view="dashboard">Dashboard</button>
+                <button class="nav-link" data-view="intel">Intel</button>
+                <button class="nav-link" data-view="tubi">Tubi</button>
+                <button class="nav-link" data-view="alerts">Alerts</button>
+                <button class="nav-link" data-view="competitors">Competitors</button>
+                <button class="nav-link" data-view="runs">Runs</button>
+                <button class="nav-link" data-view="reports">Reports</button>
+            </nav>
+
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="refresh()">↻ Refresh</button>
+                <button class="btn btn-primary" onclick="showRunInfo()">Run Radar</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="view active">
+            <div class="stats-grid" id="stats-grid"></div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">High Impact Intel</h2>
+                    <button class="btn btn-ghost" onclick="showView('intel')">View All →</button>
+                </div>
+                <div class="intel-row" id="dashboard-intel"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Runs</h2>
+                    <button class="btn btn-ghost" onclick="showView('runs')">View All →</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Run</th>
+                                <th>Started</th>
+                                <th>Status</th>
+                                <th>Articles</th>
+                                <th>Intel</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-runs"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTEL VIEW -->
+        <div id="view-intel" class="view">
+            <h1 class="page-title">Intel Feed</h1>
+            <div class="filter-bar">
+                <select class="filter-select" id="category-filter" onchange="loadIntel()">
+                    <option value="">All Categories</option>
+                    <option value="strategic">Strategic</option>
+                    <option value="product">Product</option>
+                    <option value="content">Content</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="ai_ads">AI & Ads</option>
+                    <option value="pricing">Pricing</option>
+                </select>
+            </div>
+            <div class="intel-grid" id="intel-grid"></div>
+        </div>
+
+        <!-- TUBI VIEW (Our Company) -->
+        <div id="view-tubi" class="view">
+            <div class="tubi-header">
+                <div class="tubi-header-content">
+                    <h1 class="page-title">Tubi Coverage</h1>
+                    <p class="page-subtitle">All PR, news, and articles about Tubi - our company's media presence.</p>
+                </div>
+                <div class="tubi-stats-mini" id="tubi-stats-mini">
+                    <div class="tubi-stat-mini">
+                        <span class="tubi-stat-value" id="tubi-total-articles">-</span>
+                        <span class="tubi-stat-label">Articles</span>
+                    </div>
+                    <div class="tubi-stat-mini">
+                        <span class="tubi-stat-value" id="tubi-total-intel">-</span>
+                        <span class="tubi-stat-label">Intel</span>
+                    </div>
+                    <div class="tubi-stat-mini">
+                        <span class="tubi-stat-value" id="tubi-recent">-</span>
+                        <span class="tubi-stat-label">This Week</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tubi-tabs">
+                <button class="tubi-tab active" onclick="switchTubiTab('intel')">📊 Intel Analysis</button>
+                <button class="tubi-tab" onclick="switchTubiTab('articles')">📰 All Articles</button>
+            </div>
+
+            <div id="tubi-intel-view" class="tubi-content active">
+                <div class="intel-grid" id="tubi-intel-grid"></div>
+            </div>
+
+            <div id="tubi-articles-view" class="tubi-content">
+                <div class="tubi-articles-list" id="tubi-articles-list"></div>
+            </div>
+        </div>
+
+        <!-- ALERTS VIEW (Slack-ready outputs) -->
+        <div id="view-alerts" class="view">
+            <div class="alerts-header">
+                <div>
+                    <h1 class="page-title">Slack Alerts</h1>
+                    <p class="page-subtitle">High-impact intel formatted for Slack. Copy & paste or connect your webhook.</p>
+                </div>
+                <div class="alerts-actions">
+                    <button class="btn btn-ghost" onclick="copyDigest()">📋 Copy Digest</button>
+                    <button class="btn btn-primary" onclick="showSlackSettings()">⚡ Connect Slack</button>
+                </div>
+            </div>
+
+            <!-- Daily Digest at Top (Collapsible) -->
+            <div class="digest-section" id="digest-section">
+                <div class="digest-header" onclick="toggleDigest()">
+                    <div class="digest-header-left">
+                        <span class="digest-icon">📡</span>
+                        <span class="digest-title">Daily Digest</span>
+                        <span class="digest-badge" id="digest-badge">0 alerts</span>
+                    </div>
+                    <button class="digest-toggle" id="digest-toggle">▼</button>
+                </div>
+                <div class="digest-content" id="digest-content">
+                    <div class="slack-digest" id="slack-digest"></div>
+                </div>
+            </div>
+            
+            <div class="alerts-controls">
+                <div class="alert-threshold">
+                    <label>Individual Alerts:</label>
+                    <select id="alert-threshold" onchange="loadAlerts()">
+                        <option value="8">Critical Only (8+)</option>
+                        <option value="7" selected>High Impact (7+)</option>
+                        <option value="5">Medium+ (5+)</option>
+                        <option value="0">All Intel</option>
+                    </select>
+                </div>
+                <div class="alert-count" id="alert-count">0 alerts</div>
+            </div>
+
+            <div class="alerts-list" id="alerts-list"></div>
+        </div>
+
+        <!-- COMPETITORS VIEW -->
+        <div id="view-competitors" class="view">
+            <h1 class="page-title">Competitors</h1>
+            <div class="competitors-grid" id="competitors-grid"></div>
+        </div>
+
+        <!-- RUNS VIEW -->
+        <div id="view-runs" class="view">
+            <h1 class="page-title">Run History</h1>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Run ID</th>
+                            <th>Started</th>
+                            <th>Finished</th>
+                            <th>Status</th>
+                            <th>Articles</th>
+                            <th>Intel</th>
+                            <th>Report</th>
+                        </tr>
+                    </thead>
+                    <tbody id="runs-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTS VIEW -->
+        <div id="view-reports" class="view">
+            <h1 class="page-title">Reports</h1>
+            <div class="reports-layout">
+                <div class="reports-sidebar">
+                    <div class="reports-sidebar-header">Available Reports</div>
+                    <div class="reports-list" id="reports-list"></div>
+                </div>
+                <div class="report-viewer">
+                    <div class="report-content" id="report-content">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📄</div>
+                            <p class="empty-state-text">Select a report to view</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SLACK SETTINGS MODAL -->
+    <div class="slack-settings-modal" id="slack-settings-modal" onclick="if(event.target.id==='slack-settings-modal')closeSlackSettings()">
+        <div class="slack-settings-content">
+            <h2 class="slack-settings-title">⚡ Connect to Slack</h2>
+            <p class="slack-settings-desc">Set up a webhook to receive alerts directly in your Slack channel.</p>
+            
+            <div class="slack-input-group">
+                <label class="slack-input-label">Slack Webhook URL</label>
+                <input type="url" class="slack-input" id="slack-webhook-url" placeholder="https://hooks.slack.com/services/..." />
+            </div>
+            
+            <div class="slack-input-group">
+                <label class="slack-input-label">Channel Name (for display)</label>
+                <input type="text" class="slack-input" id="slack-channel" placeholder="#competitive-intel" />
+            </div>
+            
+            <div class="slack-input-group">
+                <label class="slack-input-label">Minimum Impact Score to Alert</label>
+                <select class="slack-input" id="slack-min-impact">
+                    <option value="9">9+ (Critical only)</option>
+                    <option value="8" selected>8+ (High priority)</option>
+                    <option value="7">7+ (Important)</option>
+                    <option value="5">5+ (All significant)</option>
+                </select>
+            </div>
+            
+            <div class="slack-settings-footer">
+                <button class="btn btn-ghost" onclick="closeSlackSettings()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSlackSettings()">Save & Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTEL DETAIL MODAL -->
+    <div class="modal-overlay" id="intel-modal" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <div class="modal-badges">
+                        <span class="modal-competitor" id="modal-competitor"></span>
+                        <span class="modal-category" id="modal-category"></span>
+                        <span class="modal-date-badge" id="modal-date-badge"></span>
+                    </div>
+                    <h2 class="modal-title" id="modal-title"></h2>
+                </div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Intelligence Summary</h3>
+                    <p class="modal-summary" id="modal-summary"></p>
+                </div>
+                
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Analysis Scores</h3>
+                    <div class="modal-scores">
+                        <div class="modal-score-card">
+                            <div class="modal-score-value" id="modal-impact">-</div>
+                            <div class="modal-score-label">Impact Score</div>
+                            <div class="modal-score-desc">Business significance</div>
+                        </div>
+                        <div class="modal-score-card">
+                            <div class="modal-score-value" id="modal-relevance">-</div>
+                            <div class="modal-score-label">Relevance</div>
+                            <div class="modal-score-desc">Applies to Tubi</div>
+                        </div>
+                        <div class="modal-score-card">
+                            <div class="modal-score-value" id="modal-sources-count">-</div>
+                            <div class="modal-score-label">Sources</div>
+                            <div class="modal-score-desc">Coverage breadth</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="modal-section-title">Source Articles (<span id="modal-sources-total">0</span>)</h3>
+                    <div class="modal-sources-list" id="modal-sources"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="modal-meta" id="modal-date"></span>
+                <a href="#" id="modal-primary-link" class="btn btn-primary" target="_blank">Open Primary Source →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // NAVIGATION
+        // ═══════════════════════════════════════════════════════════════
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            btn.addEventListener('click', () => showView(btn.dataset.view));
+        });
+
+        function showView(view) {
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.nav-link[data-view="${view}"]`)?.classList.add('active');
+            
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+
+            if (view === 'dashboard') loadDashboard();
+            else if (view === 'intel') loadIntel();
+            else if (view === 'tubi') loadTubi();
+            else if (view === 'alerts') loadAlerts();
+            else if (view === 'competitors') loadCompetitors();
+            else if (view === 'runs') loadRuns();
+            else if (view === 'reports') loadReports();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DASHBOARD
+        // ═══════════════════════════════════════════════════════════════
+        async function loadDashboard() {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+
+            // Stats
+            document.getElementById('stats-grid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">Total Runs</div>
+                    <div class="stat-value accent">${data.total_runs}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Articles Collected</div>
+                    <div class="stat-value">${data.total_articles.toLocaleString()}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Intel Items</div>
+                    <div class="stat-value">${data.total_intel.toLocaleString()}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Competitors</div>
+                    <div class="stat-value">${data.competitors_tracked}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Sources</div>
+                    <div class="stat-value">${data.sources_monitored}</div>
+                </div>
+            `;
+
+            // Recent runs
+            document.getElementById('dashboard-runs').innerHTML = data.recent_runs.slice(0, 5).map(r => `
+                <tr>
+                    <td><strong>#${r.id}</strong></td>
+                    <td>${formatDate(r.started_at)}</td>
+                    <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+                    <td>${r.articles_count}</td>
+                    <td>${r.intel_count}</td>
+                </tr>
+            `).join('');
+
+            // Load intel
+            const intelRes = await fetch('/api/intel?limit=10&min_impact=5');
+            const intelData = await intelRes.json();
+            renderIntelRow(intelData.intel, 'dashboard-intel');
+        }
+
+        // Store intel data for modal access
+        let intelCache = {};
+
+        function renderIntelRow(items, containerId) {
+            const container = document.getElementById(containerId);
+            if (!items?.length) {
+                container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No intel found</p></div>`;
+                return;
+            }
+            
+            // Cache intel data
+            items.forEach(item => { intelCache[item.id] = item; });
+            
+            container.innerHTML = items.map(item => {
+                const sourceCount = item.source_count || 1;
+                const sourceBadge = sourceCount > 1 ? `<span class="source-badge">${sourceCount} sources</span>` : '';
+                return `
+                <div class="intel-card" onclick="openIntelModal(${item.id})">
+                    <div class="intel-meta">
+                        <span class="intel-source">${esc(item.competitor_id)}</span>
+                        <span class="intel-category">${item.category}</span>
+                    </div>
+                    <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
+                    <p class="intel-summary">${esc(item.summary)}</p>
+                    <div class="intel-footer">
+                        <div class="intel-scores">
+                            <span class="score-item">Impact<strong>${item.impact_score?.toFixed(1)}</strong></span>
+                            ${sourceBadge}
+                        </div>
+                        <span class="intel-link">View Details →</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+        
+        function cleanTitle(title) {
+            // Clean up HTML tags that might be in the title
+            return (title || '').replace(/<[^>]*>/g, '').trim();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INTEL MODAL
+        // ═══════════════════════════════════════════════════════════════
+        function openIntelModal(intelId) {
+            const item = intelCache[intelId];
+            if (!item) return;
+
+            // Populate modal
+            document.getElementById('modal-competitor').textContent = item.competitor_id?.toUpperCase() || 'UNKNOWN';
+            document.getElementById('modal-category').textContent = item.category || 'General';
+            document.getElementById('modal-title').textContent = cleanTitle(item.title);
+            document.getElementById('modal-summary').textContent = item.summary || 'No summary available.';
+            document.getElementById('modal-impact').textContent = item.impact_score?.toFixed(1) || '-';
+            document.getElementById('modal-relevance').textContent = item.relevance_score?.toFixed(1) || '-';
+            
+            const sourceCount = item.source_count || 1;
+            document.getElementById('modal-sources-count').textContent = sourceCount;
+
+            // Format date
+            const dateText = item.published_at 
+                ? new Date(item.published_at).toLocaleDateString('en-US', { 
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                  })
+                : 'Unknown date';
+            document.getElementById('modal-date').textContent = dateText;
+            
+            // Short date for badge
+            const shortDate = item.published_at 
+                ? new Date(item.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : '';
+            document.getElementById('modal-date-badge').textContent = shortDate;
+
+            // Primary link
+            document.getElementById('modal-primary-link').href = item.url || '#';
+
+            // Build sources list
+            const sourcesContainer = document.getElementById('modal-sources');
+            const allUrls = [item.url, ...(item.related_urls || [])].filter(Boolean);
+            
+            // Remove duplicates
+            const uniqueUrls = [...new Set(allUrls)];
+            
+            sourcesContainer.innerHTML = uniqueUrls.map((url, idx) => {
+                const domain = extractDomain(url);
+                const isPrimary = idx === 0;
+                const displayUrl = cleanUrl(url);
+                return `
+                    <a href="${url}" target="_blank" class="modal-source-item">
+                        <div class="modal-source-number ${isPrimary ? '' : 'secondary'}">${idx + 1}</div>
+                        <div class="modal-source-info">
+                            <div class="modal-source-domain">${domain}</div>
+                            <div class="modal-source-url">${displayUrl}</div>
+                        </div>
+                        <span class="modal-source-arrow">→</span>
+                    </a>
+                `;
+            }).join('');
+            
+            // Update sources count to reflect unique URLs
+            document.getElementById('modal-sources-count').textContent = uniqueUrls.length;
+            document.getElementById('modal-sources-total').textContent = uniqueUrls.length;
+
+            // Show modal
+            document.getElementById('intel-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('intel-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target.id === 'intel-modal') {
+                closeModal();
+            }
+        }
+
+        function extractDomain(url) {
+            try {
+                const u = new URL(url);
+                return u.hostname.replace('www.', '');
+            } catch {
+                return 'Unknown Source';
+            }
+        }
+
+        function cleanUrl(url) {
+            try {
+                const u = new URL(url);
+                // Get path and query, trim if too long
+                let path = u.pathname + u.search;
+                if (path.length > 80) {
+                    path = path.substring(0, 77) + '...';
+                }
+                return u.hostname + path;
+            } catch {
+                if (url.length > 80) {
+                    return url.substring(0, 77) + '...';
+                }
+                return url;
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // INTEL
+        // ═══════════════════════════════════════════════════════════════
+        async function loadIntel() {
+            const category = document.getElementById('category-filter')?.value || '';
+            const res = await fetch(`/api/intel?limit=100&category=${category}`);
+            const data = await res.json();
+            
+            // Cache intel data
+            data.intel?.forEach(item => { intelCache[item.id] = item; });
+            
+            const container = document.getElementById('intel-grid');
+            if (!data.intel?.length) {
+                container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No intel found</p></div>`;
+                return;
+            }
+            container.innerHTML = data.intel.map(item => {
+                const sourceCount = item.source_count || 1;
+                const sourceBadge = sourceCount > 1 ? `<span class="source-badge">${sourceCount} sources</span>` : '';
+                const impactClass = item.impact_score >= 8 ? 'high-impact' : '';
+                return `
+                <div class="intel-card ${impactClass}" onclick="openIntelModal(${item.id})">
+                    <div class="intel-meta">
+                        <span class="intel-source">${esc(item.competitor_id)}</span>
+                        <span class="intel-category">${item.category}</span>
+                    </div>
+                    <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
+                    <p class="intel-summary">${esc(item.summary)}</p>
+                    <div class="intel-footer">
+                        <div class="intel-scores">
+                            <span class="score-item">Impact<strong>${item.impact_score?.toFixed(1)}</strong></span>
+                            ${sourceBadge}
+                        </div>
+                        <span class="intel-link">View Details →</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // COMPETITORS
+        // ═══════════════════════════════════════════════════════════════
+        async function loadCompetitors() {
+            const res = await fetch('/api/competitors');
+            const data = await res.json();
+            
+            document.getElementById('competitors-grid').innerHTML = data.competitors.map(c => `
+                <div class="competitor-card">
+                    <div class="competitor-header">
+                        <div class="competitor-avatar">${c.name.charAt(0)}</div>
+                        <div>
+                            <div class="competitor-name">${esc(c.name)}</div>
+                            <div class="competitor-category">${c.category}</div>
+                        </div>
+                    </div>
+                    <div class="competitor-stats">
+                        <div class="competitor-stat">
+                            <div class="competitor-stat-value">${c.feeds_count}</div>
+                            <div class="competitor-stat-label">Feeds</div>
+                        </div>
+                        <div class="competitor-stat">
+                            <div class="competitor-stat-value">${c.search_queries}</div>
+                            <div class="competitor-stat-label">Queries</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // RUNS
+        // ═══════════════════════════════════════════════════════════════
+        async function loadRuns() {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            
+            document.getElementById('runs-table').innerHTML = data.recent_runs.map(r => `
+                <tr>
+                    <td><strong>#${r.id}</strong></td>
+                    <td>${formatDate(r.started_at)}</td>
+                    <td>${r.finished_at ? formatDate(r.finished_at) : '—'}</td>
+                    <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+                    <td>${r.articles_count}</td>
+                    <td>${r.intel_count}</td>
+                    <td>${r.report_path ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="viewReportFromRun(${r.id})">View</button>` : '—'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // REPORTS
+        // ═══════════════════════════════════════════════════════════════
+        async function loadReports() {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            const withReports = data.recent_runs.filter(r => r.report_path);
+            
+            const list = document.getElementById('reports-list');
+            if (!withReports.length) {
+                list.innerHTML = `<div class="empty-state"><p class="empty-state-text">No reports yet</p></div>`;
+                return;
+            }
+            
+            list.innerHTML = withReports.map((r, i) => `
+                <div class="report-item ${i === 0 ? 'active' : ''}" data-run="${r.id}" onclick="selectReport(this, ${r.id})">
+                    <div class="report-item-title">Run #${r.id}</div>
+                    <div class="report-item-meta">${formatDate(r.started_at)} • ${r.intel_count} intel</div>
+                </div>
+            `).join('');
+
+            if (withReports.length) viewReport(withReports[0].id);
+        }
+
+        function selectReport(el, runId) {
+            document.querySelectorAll('.report-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            viewReport(runId);
+        }
+
+        async function viewReport(runId) {
+            const res = await fetch(`/api/reports/${runId}`);
+            const data = await res.json();
+            if (data.content) {
+                document.getElementById('report-content').innerHTML = marked.parse(data.content);
+            }
+        }
+
+        function viewReportFromRun(runId) {
+            showView('reports');
+            setTimeout(() => {
+                const item = document.querySelector(`.report-item[data-run="${runId}"]`);
+                if (item) {
+                    selectReport(item, runId);
+                }
+            }, 100);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // UTILS
+        // ═══════════════════════════════════════════════════════════════
+        function formatDate(d) {
+            if (!d) return '—';
+            return new Date(d).toLocaleDateString('en-US', { 
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+            });
+        }
+
+        function esc(t) {
+            const d = document.createElement('div');
+            d.textContent = t || '';
+            return d.innerHTML;
+        }
+
+        function refresh() {
+            const activeView = document.querySelector('.nav-link.active')?.dataset.view || 'dashboard';
+            showView(activeView);
+        }
+
+        function showRunInfo() {
+            alert('Run the radar from terminal:\n\npython run_radar.py\n\nThen refresh this page to see results.');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TUBI (Our Company)
+        // ═══════════════════════════════════════════════════════════════
+        let tubiIntelCache = [];
+
+        async function loadTubi() {
+            // Load stats
+            const statsRes = await fetch('/api/tubi/stats');
+            const stats = await statsRes.json();
+            
+            document.getElementById('tubi-total-articles').textContent = stats.total_articles || 0;
+            document.getElementById('tubi-total-intel').textContent = stats.total_intel || 0;
+            document.getElementById('tubi-recent').textContent = stats.recent_mentions || 0;
+            
+            // Load intel
+            await loadTubiIntel();
+        }
+
+        async function loadTubiIntel() {
+            const res = await fetch('/api/tubi/intel?limit=50');
+            const data = await res.json();
+            
+            tubiIntelCache = data.intel || [];
+            
+            // Cache for modal
+            tubiIntelCache.forEach(item => { intelCache[item.id] = item; });
+            
+            const container = document.getElementById('tubi-intel-grid');
+            if (!tubiIntelCache.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📰</div>
+                        <p class="empty-state-text">No Tubi-related intel found yet.<br>Run the radar to collect Tubi coverage.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = tubiIntelCache.map(item => {
+                const sourceCount = item.source_count || 1;
+                const sourceBadge = sourceCount > 1 ? `<span class="source-badge">${sourceCount} sources</span>` : '';
+                return `
+                <div class="intel-card" onclick="openIntelModal(${item.id})">
+                    <div class="intel-meta">
+                        <span class="intel-source">TUBI</span>
+                        <span class="intel-category">${item.category}</span>
+                    </div>
+                    <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
+                    <p class="intel-summary">${esc(item.summary)}</p>
+                    <div class="intel-footer">
+                        <div class="intel-scores">
+                            <span class="score-item">Impact<strong>${item.impact_score?.toFixed(1)}</strong></span>
+                            ${sourceBadge}
+                        </div>
+                        <span class="intel-link">View Details →</span>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        async function loadTubiArticles() {
+            const res = await fetch('/api/tubi/articles?limit=100');
+            const data = await res.json();
+            
+            const container = document.getElementById('tubi-articles-list');
+            if (!data.articles?.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📰</div>
+                        <p class="empty-state-text">No Tubi articles found yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.articles.map(article => {
+                const icon = article.has_intel ? '📊' : '📰';
+                const badge = article.has_intel 
+                    ? `<span class="tubi-article-badge has-intel">Analyzed</span>`
+                    : `<span class="tubi-article-badge no-intel">Raw</span>`;
+                const summary = article.summary 
+                    ? `<div class="tubi-article-summary">${esc(article.summary)}</div>` 
+                    : '';
+                    
+                return `
+                <a href="${article.url}" target="_blank" class="tubi-article-link">
+                    <div class="tubi-article-item">
+                        <div class="tubi-article-icon">${icon}</div>
+                        <div class="tubi-article-content">
+                            <div class="tubi-article-title">${esc(cleanTitle(article.title))}</div>
+                            <div class="tubi-article-meta">
+                                <span class="tubi-article-source">${article.source || 'Unknown'}</span>
+                                <span>${article.published_at ? formatDate(article.published_at) : 'Recent'}</span>
+                                ${badge}
+                            </div>
+                            ${summary}
+                        </div>
+                    </div>
+                </a>
+            `}).join('');
+        }
+
+        function switchTubiTab(tab) {
+            document.querySelectorAll('.tubi-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tubi-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'intel') {
+                document.querySelector('.tubi-tab:first-child').classList.add('active');
+                document.getElementById('tubi-intel-view').classList.add('active');
+            } else {
+                document.querySelector('.tubi-tab:last-child').classList.add('active');
+                document.getElementById('tubi-articles-view').classList.add('active');
+                loadTubiArticles();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ALERTS (Slack-ready)
+        // ═══════════════════════════════════════════════════════════════
+        let alertsCache = [];
+
+        async function loadAlerts() {
+            const threshold = document.getElementById('alert-threshold')?.value || 7;
+            const res = await fetch(`/api/intel?limit=50&min_impact=${threshold}`);
+            const data = await res.json();
+            
+            alertsCache = data.intel || [];
+            document.getElementById('alert-count').textContent = `${alertsCache.length} alerts`;
+            
+            renderAlerts(alertsCache);
+            renderDigest(alertsCache);
+        }
+
+        function renderAlerts(items) {
+            const container = document.getElementById('alerts-list');
+            if (!items.length) {
+                container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No alerts at this threshold</p></div>`;
+                return;
+            }
+
+            container.innerHTML = items.map((item, idx) => {
+                const impactClass = item.impact_score >= 9 ? 'critical' : item.impact_score >= 7 ? 'high' : 'medium';
+                const impactEmoji = item.impact_score >= 9 ? '🚨' : item.impact_score >= 7 ? '⚠️' : 'ℹ️';
+                const sourceCount = item.source_count || 1;
+                
+                return `
+                <div class="slack-alert" data-id="${item.id}">
+                    <div class="slack-alert-header">
+                        <div class="slack-alert-meta">
+                            <span class="slack-alert-impact ${impactClass}">${impactEmoji} Impact ${item.impact_score?.toFixed(1)}</span>
+                            <span class="slack-alert-competitor">${esc(item.competitor_id)}</span>
+                        </div>
+                        <div class="slack-alert-actions">
+                            <button class="slack-alert-btn" onclick="copyAlert(${idx})">📋 Copy</button>
+                            <button class="slack-alert-btn" onclick="openIntelModal(${item.id})">👁️ View</button>
+                        </div>
+                    </div>
+                    <div class="slack-alert-body">
+                        <div class="slack-message">
+                            <a href="${item.url}" target="_blank" class="slack-message-title">${esc(cleanTitle(item.title))}</a>
+                            <div class="slack-message-text">${esc(item.summary)}</div>
+                            <div class="slack-message-fields">
+                                <div class="slack-field">
+                                    <div class="slack-field-label">Category</div>
+                                    <div class="slack-field-value">${item.category}</div>
+                                </div>
+                                <div class="slack-field">
+                                    <div class="slack-field-label">Sources</div>
+                                    <div class="slack-field-value">${sourceCount} article${sourceCount > 1 ? 's' : ''}</div>
+                                </div>
+                                <div class="slack-field">
+                                    <div class="slack-field-label">Relevance</div>
+                                    <div class="slack-field-value">${item.relevance_score?.toFixed(1)}/10</div>
+                                </div>
+                            </div>
+                            <div class="slack-message-footer">
+                                <span>📡 Competitor Monitor</span>
+                                <span>•</span>
+                                <span>${item.published_at ? formatDate(item.published_at) : 'Recent'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderDigest(items) {
+            const container = document.getElementById('slack-digest');
+            document.getElementById('digest-badge').textContent = `${items.length} alerts`;
+            
+            if (!items.length) {
+                container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No alerts to digest</p></div>`;
+                return;
+            }
+
+            const criticalItems = items.filter(i => i.impact_score >= 9);
+            const highItems = items.filter(i => i.impact_score >= 7 && i.impact_score < 9);
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+            let digestHtml = `
+                <div class="slack-digest-message">
+                    <div class="slack-digest-header">
+                        <img src="/static/logo.png" class="slack-digest-avatar" onerror="this.outerHTML='<div class=\\'slack-digest-avatar\\'>CM</div>'">
+                        <div>
+                            <span class="slack-digest-bot">Competitor Monitor</span>
+                            <span class="slack-digest-time">${timeStr}</span>
+                        </div>
+                    </div>
+                    <div class="slack-digest-content">
+                        <strong>📡 Daily Competitive Intelligence Digest</strong>
+                        <p style="color: #8d8e90; margin-bottom: 12px;">${dateStr}</p>
+            `;
+
+            if (criticalItems.length) {
+                digestHtml += `<h3>🚨 Critical Alerts (${criticalItems.length})</h3><ul>`;
+                criticalItems.slice(0, 5).forEach(item => {
+                    digestHtml += `<li><strong>${esc(item.competitor_id?.toUpperCase())}</strong>: ${esc(truncate(item.summary, 120))}</li>`;
+                });
+                digestHtml += `</ul>`;
+            }
+
+            if (highItems.length) {
+                digestHtml += `<h3>⚠️ High Priority (${highItems.length})</h3><ul>`;
+                highItems.slice(0, 5).forEach(item => {
+                    digestHtml += `<li><strong>${esc(item.competitor_id?.toUpperCase())}</strong>: ${esc(truncate(item.summary, 120))}</li>`;
+                });
+                digestHtml += `</ul>`;
+            }
+
+            digestHtml += `
+                        <p style="margin-top: 16px; color: #8d8e90;">
+                            📊 Total: ${items.length} alerts | 
+                            <a href="#" onclick="showView('reports')" style="color: #1d9bd1;">View Full Report →</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = digestHtml;
+        }
+
+        function toggleDigest() {
+            document.getElementById('digest-section').classList.toggle('collapsed');
+        }
+
+        function copyDigest() {
+            if (!alertsCache.length) {
+                alert('No alerts to copy');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            
+            const criticalItems = alertsCache.filter(i => i.impact_score >= 9);
+            const highItems = alertsCache.filter(i => i.impact_score >= 7 && i.impact_score < 9);
+
+            let text = `📡 *Competitor Monitor - Daily Digest*\n${dateStr}\n\n`;
+
+            if (criticalItems.length) {
+                text += `*🚨 Critical Alerts (${criticalItems.length})*\n`;
+                criticalItems.slice(0, 5).forEach((item, idx) => {
+                    text += `${idx + 1}. *${item.competitor_id?.toUpperCase()}*: ${truncate(item.summary, 150)}\n`;
+                });
+                text += '\n';
+            }
+
+            if (highItems.length) {
+                text += `*⚠️ High Priority (${highItems.length})*\n`;
+                highItems.slice(0, 5).forEach((item, idx) => {
+                    text += `${idx + 1}. *${item.competitor_id?.toUpperCase()}*: ${truncate(item.summary, 150)}\n`;
+                });
+                text += '\n';
+            }
+
+            text += `\n_📊 ${alertsCache.length} total alerts | Generated by Competitor Monitor_`;
+
+            copyToClipboard(text);
+        }
+
+        function truncate(str, len) {
+            if (!str) return '';
+            if (str.length <= len) return str;
+            return str.substring(0, len) + '...';
+        }
+
+        function copyAlert(idx) {
+            const item = alertsCache[idx];
+            if (!item) return;
+
+            const impactEmoji = item.impact_score >= 9 ? '🚨' : item.impact_score >= 7 ? '⚠️' : 'ℹ️';
+            const text = `${impactEmoji} *${item.competitor_id?.toUpperCase()}* | Impact: ${item.impact_score?.toFixed(1)}/10
+
+*${cleanTitle(item.title)}*
+
+${item.summary}
+
+📊 Category: ${item.category} | Sources: ${item.source_count || 1}
+🔗 ${item.url}`;
+
+            copyToClipboard(text);
+        }
+
+        function copyAllAlerts() {
+            if (!alertsCache.length) return;
+
+            let text = `📡 *Competitor Monitor Alert Digest*\n${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}\n\n`;
+
+            alertsCache.slice(0, 10).forEach((item, idx) => {
+                const impactEmoji = item.impact_score >= 9 ? '🚨' : item.impact_score >= 7 ? '⚠️' : 'ℹ️';
+                text += `${idx + 1}. ${impactEmoji} *${item.competitor_id?.toUpperCase()}*: ${truncate(item.summary, 150)}\n   Impact: ${item.impact_score?.toFixed(1)} | <${item.url}|View Source>\n\n`;
+            });
+
+            text += `\n_${alertsCache.length} total alerts | Generated by Competitor Monitor_`;
+
+            copyToClipboard(text);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopySuccess();
+            });
+        }
+
+        function showCopySuccess() {
+            const toast = document.createElement('div');
+            toast.className = 'copy-success';
+            toast.textContent = '✓ Copied to clipboard';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function showSlackSettings() {
+            document.getElementById('slack-settings-modal').classList.add('active');
+        }
+
+        function closeSlackSettings() {
+            document.getElementById('slack-settings-modal').classList.remove('active');
+        }
+
+        function saveSlackSettings() {
+            const webhook = document.getElementById('slack-webhook-url').value;
+            const channel = document.getElementById('slack-channel').value;
+            const minImpact = document.getElementById('slack-min-impact').value;
+
+            if (!webhook) {
+                alert('Please enter a Slack webhook URL');
+                return;
+            }
+
+            // Save to localStorage for now
+            localStorage.setItem('tubi_radar_slack', JSON.stringify({ webhook, channel, minImpact }));
+            
+            alert('✓ Slack settings saved!\n\nNote: Automatic posting will be available in a future update. For now, use the Copy buttons to share alerts.');
+            closeSlackSettings();
+        }
+
+        // Load saved Slack settings
+        function loadSlackSettings() {
+            const saved = localStorage.getItem('tubi_radar_slack');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                document.getElementById('slack-webhook-url').value = settings.webhook || '';
+                document.getElementById('slack-channel').value = settings.channel || '';
+                document.getElementById('slack-min-impact').value = settings.minImpact || '8';
+            }
+        }
+
+        // Init
+        loadDashboard();
+        loadSlackSettings();
+    </script>
+</body>
+</html>

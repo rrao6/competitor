@@ -42,6 +42,7 @@ class Run(Base):
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="running")  # running, success, error
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    report_path: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Path to report file
     
     # Relationships
     articles: Mapped[list["Article"]] = relationship("Article", back_populates="run")
@@ -96,6 +97,8 @@ class Intel(Base):
     is_duplicate_of: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("intel.id"), nullable=True)
     entities_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON list of entities
     llm_metadata: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Raw JSON from LLM
+    source_count: Mapped[int] = mapped_column(Integer, default=1)  # Number of sources covering this story
+    related_urls_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON list of additional source URLs
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     
     # Relationships

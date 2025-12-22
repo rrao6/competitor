@@ -1,103 +1,499 @@
-# Tubi Radar Configuration
-# Competitive intelligence monitoring for streaming industry
+# Competitor Monitor Configuration
+# Comprehensive Competitive Intelligence for Streaming Industry
+# Updated: December 2025
 
+# =============================================================================
+# TUBI - OUR COMPANY (Separate tracking for execs)
+# =============================================================================
+tubi:
+  id: tubi
+  name: "Tubi"
+  feeds:
+    - label: tubi_newsroom
+      type: rss
+      url: "https://corporate.tubi.tv/feed/"
+    - label: tubi_google_news
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+streaming&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_business_news
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+TV+Fox&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_avod_news
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+AVOD+FAST&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_originals
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+originals+content&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_advertising
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+advertising+CTV&hl=en-US&gl=US&ceid=US:en"
+  search_queries:
+    - "Tubi streaming news"
+    - "Tubi originals announcement"
+    - "Tubi advertising technology"
+    - "Tubi app updates features"
+    - "Tubi Fox Corporation"
+    - "Tubi subscriber growth"
+    - "Tubi content library"
+    - "Tubi FAST channels"
+    - "Tubi partnership deals"
+    - "Tubi market share"
+
+# =============================================================================
+# PRIMARY STREAMING SERVICES (20)
+# =============================================================================
 competitors:
-  - id: roku
-    name: "Roku / The Roku Channel"
-    feeds:
-      - label: roku_newsroom
-        type: rss
-        url: "https://newsroom.roku.com/rss"
-    search_queries:
-      - "Roku OS update streaming"
-      - '"The Roku Channel" FAST channels'
-      - "Roku advertising platform"
-
-  - id: netflix
-    name: "Netflix"
-    feeds:
-      - label: netflix_newsroom
-        type: rss
-        url: "https://about.netflix.com/en/newsroom/rss"
-    search_queries:
-      - "Netflix ad-supported tier new feature"
-      - "Netflix AVOD FAST channels"
-      - "Netflix streaming technology"
-
-  - id: amazon
-    name: "Amazon Prime Video / Freevee"
-    feeds:
-      - label: amazon_news
-        type: rss
-        url: "https://press.aboutamazon.com/rss/news-releases"
-    search_queries:
-      - "Amazon Freevee new content"
-      - "Amazon Prime Video AVOD"
-      - "Amazon streaming advertising"
-
-  - id: disney
-    name: "Disney+ / Hulu"
-    feeds:
-      - label: disney_press
-        type: rss
-        url: "https://thewaltdisneycompany.com/feed/"
-    search_queries:
-      - "Disney+ ad-supported tier"
-      - "Disney+ streaming technology"
-      - "Hulu Disney+ integration"
-
   - id: youtube
     name: "YouTube / YouTube TV"
+    category: streaming
     feeds:
       - label: youtube_blog
         type: rss
         url: "https://blog.youtube/rss/"
+      - label: youtube_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=YouTube+TV+streaming&hl=en-US&gl=US&ceid=US:en"
     search_queries:
       - "YouTube TV new features"
-      - "YouTube free streaming FAST"
+      - "YouTube streaming AVOD"
       - "YouTube advertising technology"
+      - "YouTube Shorts monetization"
 
-  - id: apple
-    name: "Apple TV+"
+  - id: netflix
+    name: "Netflix"
+    category: streaming
     feeds:
-      - label: apple_newsroom
+      - label: netflix_newsroom
         type: rss
-        url: "https://www.apple.com/newsroom/rss-feed.rss"
+        url: "https://about.netflix.com/en/newsroom/rss"
+      - label: netflix_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Netflix+streaming+news&hl=en-US&gl=US&ceid=US:en"
     search_queries:
-      - "Apple TV+ streaming"
-      - "Apple TV advertising"
+      - "Netflix ad-supported tier"
+      - "Netflix originals announcements"
+      - "Netflix streaming technology"
+      - "Netflix subscriber growth"
 
-  - id: warner
-    name: "Warner Bros Discovery / Max"
-    feeds: []
+  - id: disney
+    name: "Disney+ / Hulu / ESPN+"
+    category: streaming
+    feeds:
+      - label: disney_press
+        type: rss
+        url: "https://thewaltdisneycompany.com/feed/"
+      - label: disney_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Disney+Plus+Hulu+streaming&hl=en-US&gl=US&ceid=US:en"
     search_queries:
-      - "Max streaming HBO"
-      - "Warner Bros Discovery streaming"
+      - "Disney+ ad tier features"
+      - "Hulu streaming updates"
+      - "Disney+ originals"
+      - "ESPN+ streaming"
+
+  - id: amazon
+    name: "Prime Video / Freevee"
+    category: streaming
+    feeds:
+      - label: amazon_news
+        type: rss
+        url: "https://press.aboutamazon.com/rss/news-releases"
+      - label: amazon_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Amazon+Prime+Video+Freevee&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Prime Video new features"
+      - "Amazon Freevee AVOD"
+      - "Amazon streaming advertising"
+      - "Thursday Night Football streaming"
+
+  - id: roku
+    name: "Roku / The Roku Channel"
+    category: streaming
+    feeds:
+      - label: roku_newsroom
+        type: rss
+        url: "https://newsroom.roku.com/rss"
+      - label: roku_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Roku+Channel+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Roku Channel FAST"
+      - "Roku OS updates"
+      - "Roku advertising platform"
+      - "Roku originals"
 
   - id: paramount
     name: "Paramount+ / Pluto TV"
-    feeds: []
+    category: streaming
+    feeds:
+      - label: paramount_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Paramount+Plus+Pluto+TV+streaming&hl=en-US&gl=US&ceid=US:en"
     search_queries:
       - "Paramount+ streaming features"
       - "Pluto TV FAST channels"
       - "Paramount streaming advertising"
+      - "CBS streaming"
 
   - id: peacock
     name: "Peacock (NBCUniversal)"
-    feeds: []
+    category: streaming
+    feeds:
+      - label: nbcu_press
+        type: rss
+        url: "https://www.nbcuniversal.com/press-releases/rss"
+      - label: peacock_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Peacock+streaming+NBCUniversal&hl=en-US&gl=US&ceid=US:en"
     search_queries:
-      - "Peacock streaming new features"
+      - "Peacock streaming features"
       - "Peacock ad-supported tier"
+      - "NBCUniversal streaming"
+      - "Peacock sports streaming"
+
+  - id: max
+    name: "Max / HBO (Warner Bros Discovery)"
+    category: streaming
+    feeds:
+      - label: max_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Max+HBO+streaming+Warner&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Max streaming HBO"
+      - "Warner Bros Discovery streaming"
+      - "Max ad tier"
+      - "HBO originals streaming"
+
+  - id: apple
+    name: "Apple TV+"
+    category: streaming
+    feeds:
+      - label: apple_newsroom
+        type: rss
+        url: "https://www.apple.com/newsroom/rss-feed.rss"
+      - label: apple_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Apple+TV+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Apple TV+ originals"
+      - "Apple TV+ streaming"
+      - "Apple MLS streaming"
+      - "Apple TV advertising"
 
   - id: fox
-    name: "Fox Corporation"
-    feeds: []
+    name: "Fox / Tubi Parent"
+    category: streaming
+    feeds:
+      - label: fox_corp
+        type: rss
+        url: "https://www.foxcorporation.com/feed/"
     search_queries:
       - "Fox streaming strategy"
       - "Fox AVOD advertising"
+      - "Fox sports streaming"
 
-# Industry news sources - these have more reliable RSS feeds
+  - id: plex
+    name: "Plex"
+    category: streaming
+    feeds:
+      - label: plex_blog
+        type: rss
+        url: "https://www.plex.tv/blog/feed/"
+    search_queries:
+      - "Plex streaming AVOD"
+      - "Plex free movies"
+
+  - id: fubo
+    name: "Fubo TV"
+    category: streaming
+    feeds:
+      - label: fubo_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Fubo+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Fubo TV sports streaming"
+      - "Fubo TV features"
+      - "Fubo subscribers"
+
+  - id: sling
+    name: "Sling TV"
+    category: streaming
+    feeds:
+      - label: sling_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Sling+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Sling TV features"
+      - "Sling TV pricing"
+      - "Dish Sling streaming"
+
+  - id: directv
+    name: "DirecTV Stream"
+    category: streaming
+    feeds:
+      - label: directv_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=DirecTV+Stream+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "DirecTV streaming"
+      - "DirecTV Stream features"
+
+  - id: espn
+    name: "ESPN+"
+    category: streaming
+    feeds:
+      - label: espn_press
+        type: rss
+        url: "https://espnpressroom.com/us/feed/"
+    search_queries:
+      - "ESPN+ streaming features"
+      - "ESPN streaming sports"
+
+  - id: amc
+    name: "AMC+"
+    category: streaming
+    feeds:
+      - label: amc_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=AMC+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "AMC+ streaming"
+      - "AMC Networks streaming"
+
+  - id: xumo
+    name: "Xumo (Comcast/Charter)"
+    category: streaming
+    feeds:
+      - label: xumo_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Xumo+streaming+FAST&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Xumo FAST channels"
+      - "Xumo streaming platform"
+      - "Comcast Charter streaming"
+
+  - id: vix
+    name: "ViX (TelevisaUnivision)"
+    category: streaming
+    feeds:
+      - label: vix_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=ViX+TelevisaUnivision+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "ViX streaming"
+      - "TelevisaUnivision streaming"
+      - "ViX AVOD"
+
+  - id: britbox
+    name: "BritBox"
+    category: streaming
+    feeds:
+      - label: britbox_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=BritBox+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "BritBox streaming"
+      - "BritBox originals"
+
+  - id: crunchyroll
+    name: "Crunchyroll"
+    category: streaming
+    feeds:
+      - label: crunchyroll_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Crunchyroll+streaming+anime&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Crunchyroll streaming"
+      - "Crunchyroll anime"
+      - "Sony Crunchyroll"
+
+# =============================================================================
+# CTV PLATFORMS (6)
+# =============================================================================
+  - id: roku_platform
+    name: "Roku Platform"
+    category: ctv
+    feeds:
+      - label: roku_developers
+        type: rss
+        url: "https://developer.roku.com/feed"
+    search_queries:
+      - "Roku OS update"
+      - "Roku ad platform"
+      - "Roku developer"
+
+  - id: fire_tv
+    name: "Fire TV (Amazon)"
+    category: ctv
+    feeds: []
+    search_queries:
+      - "Fire TV features"
+      - "Fire TV Alexa"
+      - "Amazon Fire TV update"
+
+  - id: samsung_tv
+    name: "Samsung TV Plus"
+    category: ctv
+    feeds:
+      - label: samsung_news
+        type: rss
+        url: "https://news.samsung.com/global/feed"
+    search_queries:
+      - "Samsung TV Plus"
+      - "Samsung Tizen"
+      - "Samsung free channels"
+
+  - id: google_tv
+    name: "Google TV / Android TV"
+    category: ctv
+    feeds:
+      - label: google_blog
+        type: rss
+        url: "https://blog.google/rss/"
+    search_queries:
+      - "Google TV features"
+      - "Android TV update"
+      - "Chromecast streaming"
+
+  - id: vizio
+    name: "Vizio SmartCast"
+    category: ctv
+    feeds: []
+    search_queries:
+      - "Vizio SmartCast"
+      - "Vizio WatchFree"
+      - "Vizio streaming"
+
+  - id: lg_tv
+    name: "LG Channels"
+    category: ctv
+    feeds:
+      - label: lg_newsroom
+        type: rss
+        url: "https://www.lgnewsroom.com/feed/"
+    search_queries:
+      - "LG webOS"
+      - "LG Channels"
+      - "LG TV streaming"
+
+# =============================================================================
+# AI COMPANIES (5)
+# =============================================================================
+  - id: openai
+    name: "OpenAI"
+    category: ai
+    feeds:
+      - label: openai_blog
+        type: rss
+        url: "https://openai.com/blog/rss/"
+    search_queries:
+      - "OpenAI Sora video"
+      - "OpenAI video generation"
+      - "OpenAI advertising"
+
+  - id: google_ai
+    name: "Google AI / Gemini"
+    category: ai
+    feeds:
+      - label: google_ai_blog
+        type: rss
+        url: "https://blog.google/technology/ai/rss/"
+    search_queries:
+      - "Google Gemini video"
+      - "YouTube AI features"
+      - "Google AI video generation"
+
+  - id: anthropic
+    name: "Anthropic"
+    category: ai
+    feeds: []
+    search_queries:
+      - "Anthropic Claude"
+      - "Anthropic enterprise AI"
+      - "Claude video understanding"
+
+  - id: meta_ai
+    name: "Meta AI"
+    category: ai
+    feeds:
+      - label: meta_ai_blog
+        type: rss
+        url: "https://ai.meta.com/blog/rss/"
+    search_queries:
+      - "Meta AI video"
+      - "Meta Reels AI"
+      - "Meta video generation"
+
+  - id: xai
+    name: "xAI / Grok"
+    category: ai
+    feeds: []
+    search_queries:
+      - "xAI Grok"
+      - "Grok media AI"
+      - "X AI features"
+
+# =============================================================================
+# SOCIAL MEDIA COMPETITORS (Indirect)
+# =============================================================================
+  - id: tiktok
+    name: "TikTok"
+    category: social
+    feeds: []
+    search_queries:
+      - "TikTok streaming"
+      - "TikTok long-form video"
+      - "TikTok advertising"
+
+  - id: instagram
+    name: "Instagram / Meta"
+    category: social
+    feeds: []
+    search_queries:
+      - "Instagram Reels"
+      - "Instagram video features"
+      - "Meta video advertising"
+
+  - id: twitter_x
+    name: "X (Twitter)"
+    category: social
+    feeds: []
+    search_queries:
+      - "X video streaming"
+      - "X TV features"
+      - "Twitter video"
+
+# =============================================================================
+# INDUSTRY NEWS SOURCES (50+)
+# =============================================================================
 industry_feeds:
+  # Google News - Industry Wide (Real-time)
+  - label: streaming_wars_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+wars+2025&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: fast_channels_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=FAST+channels+streaming&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: avod_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=AVOD+advertising+streaming&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: ctv_advertising_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=connected+TV+CTV+advertising&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_subscribers_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+subscribers+growth&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: cord_cutting_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=cord+cutting+streaming&hl=en-US&gl=US&ceid=US:en"
+
+  # Entertainment Trade Publications
   - label: variety
     type: rss
     url: "https://variety.com/feed/"
@@ -107,11 +503,14 @@ industry_feeds:
       - AVOD
       - ad-supported
       - Tubi
-      - Roku
       - Netflix
-      - Pluto
+      - Disney
+      - Roku
       - Peacock
+      - Pluto
       - Freevee
+      - YouTube
+      - Prime Video
 
   - label: deadline
     type: rss
@@ -120,42 +519,66 @@ industry_feeds:
       - streaming
       - FAST
       - AVOD
-      - ad-supported
-      - Tubi
-      - Roku
       - Netflix
+      - Disney
+      - Amazon
+      - Tubi
+      - Peacock
 
   - label: hollywood_reporter
     type: rss
     url: "https://www.hollywoodreporter.com/feed/"
     filter_keywords:
       - streaming
-      - FAST
-      - AVOD
+      - Netflix
+      - Disney
+      - Amazon
+      - HBO
+      - Max
+      - Peacock
+
+  - label: indiewire
+    type: rss
+    url: "https://www.indiewire.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - Amazon
+      - Apple
+
+  - label: screenrant
+    type: rss
+    url: "https://screenrant.com/feed/"
+    filter_keywords:
+      - streaming
       - Netflix
       - Disney
       - Amazon
 
+  # Technology News
+  - label: the_verge
+    type: rss
+    url: "https://www.theverge.com/rss/index.xml"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - YouTube
+      - Disney
+      - Amazon
+      - Roku
+      - TV
+      - AVOD
+
   - label: techcrunch
     type: rss
-    url: "https://techcrunch.com/category/media-entertainment/feed/"
+    url: "https://techcrunch.com/feed/"
     filter_keywords:
       - streaming
       - video
       - advertising
       - Netflix
       - YouTube
-
-  - label: the_verge
-    type: rss
-    url: "https://www.theverge.com/rss/index.xml"
-    filter_keywords:
-      - streaming
-      - TV
-      - Netflix
-      - YouTube
-      - Disney
-      - Amazon
+      - AI
 
   - label: engadget
     type: rss
@@ -166,6 +589,7 @@ industry_feeds:
       - Netflix
       - Roku
       - YouTube
+      - Disney
 
   - label: ars_technica
     type: rss
@@ -174,8 +598,113 @@ industry_feeds:
       - streaming
       - Netflix
       - YouTube
-      - advertising
+      - video
 
+  - label: wired
+    type: rss
+    url: "https://www.wired.com/feed/rss"
+    filter_keywords:
+      - streaming
+      - AI
+      - video
+      - Netflix
+      - YouTube
+
+  - label: cnet
+    type: rss
+    url: "https://www.cnet.com/rss/news/"
+    filter_keywords:
+      - streaming
+      - TV
+      - Netflix
+      - Roku
+      - YouTube
+
+  - label: 9to5google
+    type: rss
+    url: "https://9to5google.com/feed/"
+    filter_keywords:
+      - YouTube
+      - Google TV
+      - Android TV
+      - Chromecast
+
+  - label: 9to5mac
+    type: rss
+    url: "https://9to5mac.com/feed/"
+    filter_keywords:
+      - Apple TV
+      - Apple streaming
+      - tvOS
+
+  # Streaming-Specific Publications
+  - label: cord_cutters_news
+    type: rss
+    url: "https://www.cordcuttersnews.com/feed/"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - cord-cutting
+      - Tubi
+      - Pluto
+      - Roku
+
+  - label: the_streamable
+    type: rss
+    url: "https://thestreamable.com/feed"
+    filter_keywords:
+      - streaming
+      - cord-cutting
+      - FAST
+      - AVOD
+
+  - label: whats_on_netflix
+    type: rss
+    url: "https://www.whats-on-netflix.com/feed/"
+    filter_keywords:
+      - Netflix
+
+  - label: decider
+    type: rss
+    url: "https://decider.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - Hulu
+      - Disney
+      - Prime
+
+  # Broadcasting & Video Industry
+  - label: nexttv
+    type: rss
+    url: "https://www.nexttv.com/rss"
+    filter_keywords:
+      - streaming
+      - FAST
+      - AVOD
+      - broadcasting
+      - CTV
+
+  - label: fierce_video
+    type: rss
+    url: "https://www.fiercevideo.com/rss/xml"
+    filter_keywords:
+      - streaming
+      - OTT
+      - video
+      - FAST
+
+  - label: streamtv_insider
+    type: rss
+    url: "https://www.streamtvinsider.com/rss.xml"
+    filter_keywords:
+      - streaming
+      - OTT
+      - FAST
+      - AVOD
+
+  # Advertising & Marketing
   - label: adweek
     type: rss
     url: "https://www.adweek.com/feed/"
@@ -196,63 +725,395 @@ industry_feeds:
       - connected TV
       - AVOD
       - advertising
+      - video
 
-  - label: broadcasting_cable
+  - label: adexchanger
     type: rss
-    url: "https://www.nexttv.com/rss"
+    url: "https://www.adexchanger.com/feed/"
+    filter_keywords:
+      - CTV
+      - connected TV
+      - streaming
+      - video advertising
+      - programmatic
+
+  - label: marketing_dive
+    type: rss
+    url: "https://www.marketingdive.com/feeds/news/"
     filter_keywords:
       - streaming
+      - CTV
+      - video advertising
+
+  # Business & Finance
+  - label: reuters_media
+    type: rss
+    url: "https://www.reutersagency.com/feed/"
+    filter_keywords:
+      - Netflix
+      - Disney
+      - streaming
+      - Warner
+
+  - label: cnbc_media
+    type: rss
+    url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10000110"
+    filter_keywords:
+      - Netflix
+      - Disney
+      - streaming
+      - entertainment
+
+  - label: bloomberg_tech
+    type: rss
+    url: "https://feeds.bloomberg.com/technology/news.rss"
+    filter_keywords:
+      - Netflix
+      - streaming
+      - entertainment
+      - media
+
+  # NEW: Media & Entertainment Trade Publications
+  - label: indiewire
+    type: rss
+    url: "https://www.indiewire.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - Disney
+      - platform
+
+  - label: screenrant_streaming
+    type: rss
+    url: "https://screenrant.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - Disney
+      - Prime
+      - platform
+
+  - label: collider
+    type: rss
+    url: "https://collider.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - platform
+      - original
+
+  - label: slashfilm
+    type: rss
+    url: "https://www.slashfilm.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - platform
+
+  - label: the_wrap
+    type: rss
+    url: "https://www.thewrap.com/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - Disney
+      - subscriber
+
+  - label: vulture
+    type: rss
+    url: "https://www.vulture.com/feed/rss/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - platform
+
+  # NEW: Tech & Business News
+  - label: protocol_media
+    type: rss
+    url: "https://www.protocol.com/feeds/feed.rss"
+    filter_keywords:
+      - streaming
+      - entertainment
+      - media
+
+  - label: axios_media
+    type: rss
+    url: "https://www.axios.com/technology/feed.rss"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - media
+
+  - label: wsj_tech
+    type: rss
+    url: "https://feeds.a.dj.com/rss/RSSWSJD.xml"
+    filter_keywords:
+      - Netflix
+      - streaming
+      - Disney
+      - entertainment
+
+  - label: nyt_tech
+    type: rss
+    url: "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - entertainment
+
+  - label: forbes_media
+    type: rss
+    url: "https://www.forbes.com/media/feed/"
+    filter_keywords:
+      - streaming
+      - Netflix
+      - entertainment
+
+  # NEW: CTV & Advertising Specific
+  - label: videoweek
+    type: rss
+    url: "https://videoweek.com/feed/"
+    filter_keywords:
+      - CTV
+      - streaming
+      - video
+      - advertising
+
+  - label: advanced_tv
+    type: rss
+    url: "https://advanced-television.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
+      - FAST
+      - CTV
+
+  - label: rapid_tv_news
+    type: rss
+    url: "https://www.rapidtvnews.com/rss.xml"
+    filter_keywords:
+      - streaming
+      - OTT
+      - FAST
+      - broadcasting
+
+  - label: digital_tv_europe
+    type: rss
+    url: "https://www.digitaltveurope.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
+      - platform
+
+  - label: broadband_tv_news
+    type: rss
+    url: "https://www.broadbandtvnews.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
       - FAST
       - AVOD
-      - Tubi
-      - Pluto
-      - Roku
 
+  - label: tvtechnology
+    type: rss
+    url: "https://www.tvtechnology.com/rss"
+    filter_keywords:
+      - streaming
+      - broadcasting
+      - OTT
+
+  # NEW: Consumer & Industry Analysis
+  - label: parks_associates
+    type: rss
+    url: "https://www.parksassociates.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
+      - FAST
+
+  - label: multichannel_news
+    type: rss
+    url: "https://www.multichannel.com/rss"
+    filter_keywords:
+      - streaming
+      - cable
+      - OTT
+
+  - label: media_play_news
+    type: rss
+    url: "https://www.mediaplaynews.com/feed/"
+    filter_keywords:
+      - streaming
+      - home entertainment
+      - digital
+
+  - label: worldscreen
+    type: rss
+    url: "https://worldscreen.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
+      - international
+
+  - label: sportsvideo
+    type: rss
+    url: "https://www.sportsvideo.org/feed/"
+    filter_keywords:
+      - streaming
+      - sports
+      - broadcasting
+
+  # NEW: Social/Creator Economy (YouTube competitors)
+  - label: tubefilter
+    type: rss
+    url: "https://www.tubefilter.com/feed/"
+    filter_keywords:
+      - YouTube
+      - streaming
+      - creator
+      - platform
+
+  - label: creator_economy
+    type: rss
+    url: "https://www.passionfroot.me/blog-rss-feed"
+    filter_keywords:
+      - creator
+      - platform
+      - monetization
+
+  # NEW: International Markets
+  - label: tbi_vision
+    type: rss
+    url: "https://tbivision.com/feed/"
+    filter_keywords:
+      - streaming
+      - OTT
+      - international
+      - FAST
+
+  - label: c21media
+    type: rss
+    url: "https://www.c21media.net/feed/"
+    filter_keywords:
+      - streaming
+      - content
+      - international
+
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
 global:
-  # How far back to look for articles (hours)
+  # Time window for article freshness
   lookback_hours: 48
   
-  # Maximum articles to fetch per feed
-  max_articles_per_feed: 15
+  # Feed fetching settings
+  max_articles_per_feed: 20
+  feed_timeout: 15
+  max_concurrent_feeds: 10
   
-  # Minimum scores for inclusion in reports
-  min_relevance_score: 4
-  min_impact_score: 4
-  min_novelty_score: 0.2
+  # Scoring thresholds (lowered to capture more data)
+  min_relevance_score: 3.0
+  min_impact_score: 3.0
+  min_novelty_score: 0.15
   
-  # Maximum total items to process per run
-  max_items_total: 50
+  # Processing limits (increased for better coverage)
+  max_items_total: 200
+  max_report_items: 40
   
-  # Maximum items in final report
-  max_report_items: 15
-  
-  # Enable web search via OpenAI tool
-  enable_web_search: false
-  
-  # Maximum web searches per run
-  max_web_searches: 5
-  
-  # Request timeout for RSS feeds (seconds)
-  feed_timeout: 10
+  # Web search settings
+  enable_web_search: true
+  max_web_searches: 30
   
   # OpenAI model settings
   models:
-    reasoning: "o3-mini"
-    structured: "gpt-4.1"
+    reasoning: "gpt-4o"
+    structured: "gpt-4o"
     embedding: "text-embedding-3-small"
+    web_search: "gpt-4o"
   
   # Temperature settings
   temperature:
-    classification: 0.2
-    analysis: 0.3
-    report: 0.4
+    classification: 0.1
+    analysis: 0.2
+    report: 0.3
   
   # ChromaDB settings
   chroma:
     collection_name: "intel_embeddings"
-    similarity_threshold: 0.9
+    similarity_threshold: 0.85
     
   # Deduplication settings
   dedup:
     window_days: 30
-    similarity_threshold: 0.85
+    similarity_threshold: 0.80
+
+# =============================================================================
+# INTEL CATEGORIES (for Domain Agents)
+# =============================================================================
+intel_categories:
+  strategic:
+    name: "Strategic Updates"
+    keywords:
+      - acquisition
+      - merger
+      - partnership
+      - investment
+      - IPO
+      - earnings
+      - subscriber
+      - revenue
+      - MAU
+      - viewing hours
+      - market share
+    
+  product:
+    name: "Product Innovation"
+    keywords:
+      - feature
+      - launch
+      - update
+      - UI
+      - UX
+      - app
+      - platform
+      - technology
+      - A/B test
+      - beta
+    
+  content:
+    name: "Content & Library"
+    keywords:
+      - original
+      - exclusive
+      - licensing
+      - content deal
+      - movie
+      - series
+      - show
+      - premiere
+      - library
+    
+  marketing:
+    name: "Marketing & Creative"
+    keywords:
+      - campaign
+      - brand
+      - marketing
+      - promotion
+      - creative
+      - sponsorship
+      - awareness
+    
+  ai_platform:
+    name: "AI & Platform Integration"
+    keywords:
+      - AI
+      - machine learning
+      - recommendation
+      - personalization
+      - algorithm
+      - CTV
+      - connected TV
+      - placement
+      - ad tech
+      - programmatic

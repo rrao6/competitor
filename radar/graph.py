@@ -55,7 +55,7 @@ def start_node(state: RadarState) -> RadarState:
     from radar.tools.db_tools import create_run
     
     print("\n" + "=" * 60)
-    print("🚀 TUBI RADAR - Starting competitive intelligence run")
+    print("🚀 TUBI RADAR - Multi-Agent Competitive Intelligence")
     print("=" * 60)
     
     run_id = create_run()
@@ -80,7 +80,7 @@ def ingestion_node(state: RadarState) -> RadarState:
         agent = IngestionAgent()
         result = agent.run(
             run_id=state["run_id"],
-            enable_web_search=state.get("enable_web_search", False),
+            enable_web_search=state.get("enable_web_search", True),
         )
         
         has_articles = result.get("articles_stored", 0) > 0
@@ -114,7 +114,7 @@ def understanding_node(state: RadarState) -> RadarState:
         agent = UnderstandingAgent()
         result = agent.run(
             run_id=state["run_id"],
-            index_embeddings=False,  # Let Memory Agent handle this
+            index_embeddings=False,  # Memory Agent handles this
         )
         
         has_intel = result.get("intel_created", 0) > 0
@@ -150,7 +150,10 @@ def memory_node(state: RadarState) -> RadarState:
     
     try:
         agent = MemoryAgent()
-        result = agent.run(run_id=state["run_id"])
+        result = agent.run(
+            run_id=state["run_id"],
+            use_vector_search=True,
+        )
         
         return {
             **state,
@@ -238,6 +241,8 @@ def end_node(state: RadarState) -> RadarState:
     if state.get("ingestion_result"):
         ir = state["ingestion_result"]
         print(f"   Articles: {ir.get('candidates_found', 0)} found, {ir.get('articles_stored', 0)} stored")
+        if ir.get('web_search_articles'):
+            print(f"   Web Search: {ir.get('web_search_articles', 0)} articles")
     
     if state.get("understanding_result"):
         ur = state["understanding_result"]
@@ -245,7 +250,17 @@ def end_node(state: RadarState) -> RadarState:
     
     if state.get("memory_result"):
         mr = state["memory_result"]
-        print(f"   Dedup: {mr.get('duplicates_found', 0)} duplicates found")
+        if not mr.get("error"):
+            print(f"   Dedup: {mr.get('duplicates_found', 0)} duplicates, {mr.get('indexed', 0)} indexed")
+    
+    if state.get("domain_results"):
+        dr = state["domain_results"]
+        total_annotations = sum(
+            v.get("annotations_created", 0) 
+            for v in dr.values() 
+            if isinstance(v, dict) and not v.get("error")
+        )
+        print(f"   Annotations: {total_annotations} from domain agents")
     
     if state.get("editor_result"):
         er = state["editor_result"]
@@ -281,7 +296,7 @@ def build_radar_graph() -> StateGraph:
     graph.add_node("editor", editor_node)
     graph.add_node("end", end_node)
     
-    # Add edges (linear flow for now)
+    # Add edges (linear flow)
     graph.add_edge("start", "ingestion")
     graph.add_edge("ingestion", "understanding")
     graph.add_edge("understanding", "memory")
@@ -307,7 +322,7 @@ def compile_radar_workflow():
 # =============================================================================
 
 def run_radar_workflow(
-    enable_web_search: bool = False,
+    enable_web_search: bool = True,
     enable_memory: bool = True,
     enable_domain_agents: bool = True,
 ) -> RadarState:
@@ -344,4 +359,3 @@ def run_radar_workflow(
     final_state = workflow.invoke(initial_state)
     
     return final_state
-
