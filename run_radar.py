@@ -194,7 +194,7 @@ def run_swarm_mode(reset_db: bool = False) -> dict:
 def run_quick() -> dict:
     """Quick run - RSS only, no web search, no specialists."""
     from radar.database import init_database
-    from radar.tools.db_tools import create_run, complete_run
+    from radar.tools.db_tools import create_run, complete_run, store_articles_batch
     from radar.tools.rss import fetch_all_feeds_parallel
     from radar.agents.classifier_swarm import run_classifier_swarm
     
@@ -215,6 +215,11 @@ def run_quick() -> dict:
             complete_run(run_id, status="success", notes="No new articles")
             return {"status": "no_articles"}
         
+        # Store articles to database
+        print("\n💾 STORING ARTICLES")
+        stored = store_articles_batch(run_id, articles)
+        print(f"  Stored {stored} articles to database")
+        
         print("\n📊 CLASSIFICATION")
         articles_data = [
             {
@@ -230,6 +235,50 @@ def run_quick() -> dict:
         
         intel = run_classifier_swarm(articles_data)
         print(f"  Classified {len(intel)} intel items")
+        
+        # Store intel to database
+        print("\n💾 STORING INTEL")
+        from radar.database import get_session_factory
+        from radar.models import Intel as IntelModel, Article as ArticleModel
+        
+        Session = get_session_factory()
+        session = Session()
+        intel_stored = 0
+        
+        for item in intel:
+            # Find the corresponding stored article
+            article = session.query(ArticleModel).filter(
+                ArticleModel.url == articles_data[item.article_id]["url"]
+            ).first()
+            
+            if article:
+                # Check if intel already exists
+                existing = session.query(IntelModel).filter(
+                    IntelModel.article_id == article.id
+                ).first()
+                
+                if not existing:
+                    # Serialize related_urls to JSON
+                    import json
+                    related_urls = getattr(item, 'related_urls', []) or []
+                    related_urls_json = json.dumps(related_urls) if related_urls else None
+                    
+                    intel_record = IntelModel(
+                        article_id=article.id,
+                        summary=item.summary,
+                        category=item.category,
+                        impact_score=float(item.impact),
+                        relevance_score=float(item.relevance),
+                        novelty_score=0.5,
+                        source_count=getattr(item, 'source_count', 1) or 1,
+                        related_urls_json=related_urls_json,
+                    )
+                    session.add(intel_record)
+                    intel_stored += 1
+        
+        session.commit()
+        session.close()
+        print(f"  Stored {intel_stored} intel items to database")
         
         # Simple report
         reports_dir = Path(__file__).parent / "reports"

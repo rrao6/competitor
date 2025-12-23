@@ -1,31 +1,114 @@
 """
-Tubi Radar Dashboard - Flask Application
+Competitor Monitor Dashboard - Flask Application
 
-Premium Tubi-inspired competitive intelligence dashboard.
+Premium competitive intelligence dashboard.
+Supports both SQLite (local) and PostgreSQL (Supabase production).
 """
 from __future__ import annotations
 
 import os
 import sys
+import json
+import time
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
+from functools import wraps
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
+
+
+# ==============================================================================
+# Simple In-Memory Cache
+# ==============================================================================
+class SimpleCache:
+    """Simple in-memory cache with TTL."""
+    
+    def __init__(self):
+        self._cache = {}
+        self._timestamps = {}
+    
+    def get(self, key: str):
+        """Get cached value if not expired."""
+        if key not in self._cache:
+            return None
+        
+        # Check if expired
+        if key in self._timestamps:
+            if time.time() > self._timestamps[key]:
+                del self._cache[key]
+                del self._timestamps[key]
+                return None
+        
+        return self._cache[key]
+    
+    def set(self, key: str, value, ttl_seconds: int = 300):
+        """Set cache with TTL (default 5 minutes)."""
+        self._cache[key] = value
+        self._timestamps[key] = time.time() + ttl_seconds
+    
+    def clear(self):
+        """Clear all cache."""
+        self._cache.clear()
+        self._timestamps.clear()
+
+
+# Global cache instance
+cache = SimpleCache()
+
+
+def cached(ttl_seconds: int = 300):
+    """Decorator to cache API responses."""
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            # Create cache key from function name and request args
+            cache_key = f"{f.__name__}:{request.full_path}"
+            
+            # Check cache
+            cached_response = cache.get(cache_key)
+            if cached_response is not None:
+                return Response(
+                    cached_response,
+                    mimetype='application/json',
+                    headers={'X-Cache': 'HIT'}
+                )
+            
+            # Call function
+            result = f(*args, **kwargs)
+            
+            # Cache the response
+            if isinstance(result, Response):
+                cache.set(cache_key, result.get_data(as_text=True), ttl_seconds)
+            else:
+                response_data = json.dumps(result.json) if hasattr(result, 'json') else str(result)
+                cache.set(cache_key, response_data, ttl_seconds)
+            
+            return result
+        return wrapper
+    return decorator
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from radar.database import get_session_factory, init_database
+from radar.database import get_session_factory, init_database, is_postgres
 from radar.models import Run, Article, Intel, Annotation, Report
 from radar.config import load_config
 
 app = Flask(__name__)
 
-# Initialize database
-db_path = project_root / "data" / "radar.db"
-init_database(db_path)
-Session = get_session_factory(db_path)
+# Initialize database (works with both SQLite and PostgreSQL)
+# If DATABASE_URL is set, uses PostgreSQL (Supabase)
+# Otherwise, uses local SQLite
+if is_postgres():
+    print("Using PostgreSQL (Supabase)")
+    init_database()  # No path needed for PostgreSQL
+    Session = get_session_factory()
+else:
+    print("Using SQLite (local)")
+    db_path = project_root / "data" / "radar.db"
+    init_database(db_path)
+    Session = get_session_factory(db_path)
 
 # Load config for competitor info
 try:
@@ -49,13 +132,17 @@ def index():
 # ==============================================================================
 
 @app.route("/api/stats")
+@cached(ttl_seconds=120)  # Cache for 2 minutes
 def api_stats():
-    """Get overall dashboard statistics."""
+    """Get overall dashboard statistics (2025+ only)."""
     session = Session()
     try:
+        from datetime import datetime
+        cutoff_date = datetime(2025, 1, 1)
+        
         total_runs = session.query(Run).count()
-        total_articles = session.query(Article).count()
-        total_intel = session.query(Intel).count()
+        total_articles = session.query(Article).filter(Article.published_at >= cutoff_date).count()
+        total_intel = session.query(Intel).join(Article).filter(Article.published_at >= cutoff_date).count()
         
         # Get recent runs with details
         recent_runs = session.query(Run).order_by(Run.id.desc()).limit(10).all()
@@ -108,16 +195,30 @@ def api_stats():
 # ==============================================================================
 
 @app.route("/api/intel")
+@cached(ttl_seconds=60)  # Cache for 1 minute
 def api_intel():
-    """Get intel items with optional filters."""
+    """Get intel items with optional filters (2025+ only, ordered by recency)."""
     session = Session()
     try:
+        from datetime import datetime
         limit = request.args.get("limit", 50, type=int)
         category = request.args.get("category", "")
         competitor = request.args.get("competitor", "")
         min_impact = request.args.get("min_impact", 0, type=float)
+        sort_by = request.args.get("sort", "recent")  # 'recent' or 'impact'
         
-        query = session.query(Intel, Article).join(Article).order_by(Intel.impact_score.desc())
+        # Only show 2025+ articles
+        cutoff_date = datetime(2025, 1, 1)
+        
+        query = session.query(Intel, Article).join(Article).filter(
+            Article.published_at >= cutoff_date
+        )
+        
+        # Sort by recency (default) or impact
+        if sort_by == "impact":
+            query = query.order_by(Intel.impact_score.desc(), Article.published_at.desc())
+        else:
+            query = query.order_by(Article.published_at.desc(), Intel.impact_score.desc())
         
         if category:
             query = query.filter(Intel.category == category)
@@ -165,18 +266,24 @@ def api_intel():
 # ==============================================================================
 
 @app.route("/api/tubi/articles")
+@cached(ttl_seconds=120)  # Cache for 2 minutes
 def api_tubi_articles():
-    """Get articles specifically about Tubi."""
+    """Get articles specifically about Tubi (2025+ only, ordered by recency)."""
     session = Session()
     try:
         import json
+        from datetime import datetime
         limit = request.args.get("limit", 100, type=int)
         
-        # Get articles that mention Tubi in title or are from Tubi sources
+        # Only 2025+
+        cutoff_date = datetime(2025, 1, 1)
+        
+        # STRICT: Only articles where Tubi is in the title OR article content
+        # Ordered by recency (most recent first)
         query = session.query(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Article.competitor_id == 'tubi') |
-            (Article.source_label.ilike('%tubi%'))
+            (Article.title.ilike('%tubi%')) |
+            (Article.raw_snippet.ilike('%tubi%')),
+            Article.published_at >= cutoff_date
         ).order_by(Article.published_at.desc())
         
         articles = query.limit(limit).all()
@@ -204,19 +311,31 @@ def api_tubi_articles():
 
 
 @app.route("/api/tubi/intel")
+@cached(ttl_seconds=60)  # Cache for 1 minute
 def api_tubi_intel():
-    """Get intel items that mention Tubi."""
+    """Get intel items ABOUT Tubi (2025+ only, ordered by recency)."""
     session = Session()
     try:
         import json
+        from datetime import datetime
         limit = request.args.get("limit", 50, type=int)
+        sort_by = request.args.get("sort", "recent")  # 'recent' or 'impact'
         
-        # Get intel where the article mentions Tubi
+        # Only 2025+
+        cutoff_date = datetime(2025, 1, 1)
+        
+        # STRICT: Only intel where the ARTICLE (title or snippet) mentions Tubi
         query = session.query(Intel, Article).join(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Intel.summary.ilike('%tubi%')) |
-            (Article.competitor_id == 'tubi')
-        ).order_by(Intel.impact_score.desc())
+            (Article.title.ilike('%tubi%')) |
+            (Article.raw_snippet.ilike('%tubi%')),
+            Article.published_at >= cutoff_date
+        )
+        
+        # Sort by recency (default) or impact
+        if sort_by == "impact":
+            query = query.order_by(Intel.impact_score.desc(), Article.published_at.desc())
+        else:
+            query = query.order_by(Article.published_at.desc(), Intel.impact_score.desc())
         
         results = query.limit(limit).all()
         
@@ -250,34 +369,35 @@ def api_tubi_intel():
 
 
 @app.route("/api/tubi/stats")
+@cached(ttl_seconds=120)  # Cache for 2 minutes
 def api_tubi_stats():
-    """Get Tubi-specific statistics."""
+    """Get Tubi-specific statistics (2025+ only, article must mention Tubi)."""
     session = Session()
     try:
-        # Count articles mentioning Tubi
-        tubi_articles = session.query(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Article.competitor_id == 'tubi')
-        ).count()
-        
-        # Count intel mentioning Tubi
-        tubi_intel = session.query(Intel).join(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Intel.summary.ilike('%tubi%'))
-        ).count()
-        
-        # Get category breakdown
-        category_query = session.query(Intel.category, session.query(Intel).count()).join(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Intel.summary.ilike('%tubi%'))
-        ).group_by(Intel.category)
-        
-        # Get recent Tubi mentions count by day (last 7 days)
         from datetime import datetime, timedelta
+        
+        # Only 2025+
+        cutoff_date = datetime(2025, 1, 1)
+        
+        # Count articles where Tubi is in title or content (2025+)
+        tubi_articles = session.query(Article).filter(
+            (Article.title.ilike('%tubi%')) |
+            (Article.raw_snippet.ilike('%tubi%')),
+            Article.published_at >= cutoff_date
+        ).count()
+        
+        # Count intel where the SOURCE ARTICLE mentions Tubi (2025+)
+        tubi_intel = session.query(Intel).join(Article).filter(
+            (Article.title.ilike('%tubi%')) |
+            (Article.raw_snippet.ilike('%tubi%')),
+            Article.published_at >= cutoff_date
+        ).count()
+        
+        # Get recent (last 7 days)
         week_ago = datetime.now() - timedelta(days=7)
         recent_count = session.query(Article).filter(
-            (Article.title.ilike('%tubi%')) | 
-            (Article.competitor_id == 'tubi'),
+            (Article.title.ilike('%tubi%')) |
+            (Article.raw_snippet.ilike('%tubi%')),
             Article.published_at >= week_ago
         ).count()
         
@@ -295,22 +415,101 @@ def api_tubi_stats():
 # ==============================================================================
 
 @app.route("/api/competitors")
+@cached(ttl_seconds=300)  # Cache for 5 minutes
 def api_competitors():
-    """Get competitor information from config."""
-    if not config:
-        return jsonify({"competitors": []})
-    
-    competitors = []
-    for comp in config.competitors:
-        competitors.append({
-            "id": comp.id,
-            "name": comp.name,
-            "category": comp.category or "streaming",
-            "feeds_count": len(comp.feeds),
-            "search_queries": len(comp.search_queries) if comp.search_queries else 0
-        })
-    
-    return jsonify({"competitors": competitors})
+    """Get competitor information from config with intel counts."""
+    session = Session()
+    try:
+        from datetime import datetime
+        cutoff_date = datetime(2025, 1, 1)
+        
+        if not config:
+            return jsonify({"competitors": []})
+        
+        competitors = []
+        for comp in config.competitors:
+            # Count intel for this competitor
+            intel_count = session.query(Intel).join(Article).filter(
+                Article.competitor_id == comp.id,
+                Article.published_at >= cutoff_date
+            ).count()
+            
+            # Count articles
+            article_count = session.query(Article).filter(
+                Article.competitor_id == comp.id,
+                Article.published_at >= cutoff_date
+            ).count()
+            
+            competitors.append({
+                "id": comp.id,
+                "name": comp.name,
+                "category": comp.category or "streaming",
+                "feeds_count": len(comp.feeds),
+                "search_queries": len(comp.search_queries) if comp.search_queries else 0,
+                "intel_count": intel_count,
+                "article_count": article_count,
+            })
+        
+        # Sort by intel count
+        competitors.sort(key=lambda x: x["intel_count"], reverse=True)
+        
+        return jsonify({"competitors": competitors})
+    finally:
+        session.close()
+
+
+@app.route("/api/competitors/<competitor_id>/intel")
+@cached(ttl_seconds=60)  # Cache for 1 minute
+def api_competitor_intel(competitor_id: str):
+    """Get all intel for a specific competitor (ordered by recency)."""
+    session = Session()
+    try:
+        import json
+        from datetime import datetime
+        cutoff_date = datetime(2025, 1, 1)
+        
+        limit = request.args.get("limit", 50, type=int)
+        sort_by = request.args.get("sort", "recent")  # 'recent' or 'impact'
+        
+        query = session.query(Intel, Article).join(Article).filter(
+            Article.competitor_id == competitor_id,
+            Article.published_at >= cutoff_date
+        )
+        
+        # Sort by recency (default) or impact
+        if sort_by == "impact":
+            query = query.order_by(Intel.impact_score.desc(), Article.published_at.desc())
+        else:
+            query = query.order_by(Article.published_at.desc(), Intel.impact_score.desc())
+        
+        results = query.limit(limit).all()
+        
+        intel_list = []
+        for intel_item, article in results:
+            related_urls = []
+            if intel_item.related_urls_json:
+                try:
+                    related_urls = json.loads(intel_item.related_urls_json)
+                except:
+                    pass
+            
+            intel_list.append({
+                "id": intel_item.id,
+                "article_id": intel_item.article_id,
+                "title": article.title,
+                "summary": intel_item.summary,
+                "category": intel_item.category,
+                "impact_score": intel_item.impact_score,
+                "relevance_score": intel_item.relevance_score,
+                "url": article.url,
+                "published_at": article.published_at.isoformat() if article.published_at else None,
+                "source_count": intel_item.source_count or 1,
+                "related_urls": related_urls,
+            })
+        
+        return jsonify({"competitor_id": competitor_id, "intel": intel_list, "total": len(intel_list)})
+    finally:
+        session.close()
 
 
 # ==============================================================================
@@ -446,6 +645,61 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({"error": "Internal server error"}), 500
+
+
+# ==============================================================================
+# Cache Management
+# ==============================================================================
+
+@app.route("/api/cache/clear", methods=["POST"])
+def api_cache_clear():
+    """Clear all cached responses."""
+    cache.clear()
+    return jsonify({"status": "ok", "message": "Cache cleared"})
+
+
+@app.route("/api/health")
+def api_health():
+    """Health check endpoint."""
+    session = Session()
+    try:
+        # Quick DB check
+        from sqlalchemy import text
+        session.execute(text("SELECT 1"))
+        return jsonify({
+            "status": "healthy",
+            "database": "connected",
+            "cache_enabled": True,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "unhealthy",
+            "error": str(e)
+        }), 500
+    finally:
+        session.close()
+
+
+@app.route("/api/last-updated")
+@cached(ttl_seconds=60)
+def api_last_updated():
+    """Get last data update timestamp."""
+    session = Session()
+    try:
+        from sqlalchemy import func
+        
+        # Get most recent article
+        last_article = session.query(func.max(Article.created_at)).scalar()
+        last_intel = session.query(func.max(Intel.created_at)).scalar()
+        
+        return jsonify({
+            "last_article": last_article.isoformat() if last_article else None,
+            "last_intel": last_intel.isoformat() if last_intel else None,
+            "checked_at": datetime.now().isoformat()
+        })
+    finally:
+        session.close()
 
 
 # ==============================================================================

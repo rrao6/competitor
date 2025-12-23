@@ -103,12 +103,14 @@ class RadarConfig(BaseModel):
 class Settings(BaseSettings):
     """Environment-based settings."""
     openai_api_key: str = Field(default="", env="OPENAI_API_KEY")
+    database_url: Optional[str] = Field(default=None, env="DATABASE_URL")
     radar_db_path: Optional[str] = Field(default=None, env="RADAR_DB_PATH")
     radar_config_path: Optional[str] = Field(default=None, env="RADAR_CONFIG_PATH")
     
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # Allow extra env vars
 
 
 # Global config instance (lazy loaded)

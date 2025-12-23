@@ -1,43 +1,90 @@
 # Competitor Monitor Configuration
 # Comprehensive Competitive Intelligence for Streaming Industry
-# Updated: December 2025
+# Updated: December 2025 - EXPANDED 3x DATA VOLUME
 
 # =============================================================================
-# TUBI - OUR COMPANY (Separate tracking for execs)
+# TUBI - OUR COMPANY (Comprehensive tracking for leadership)
 # =============================================================================
 tubi:
   id: tubi
   name: "Tubi"
   feeds:
-    - label: tubi_newsroom
+    # Official Sources
+    - label: tubi_corporate
       type: rss
       url: "https://corporate.tubi.tv/feed/"
-    - label: tubi_google_news
+    
+    # Google News - Multiple Search Angles
+    - label: tubi_news_main
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_streaming
       type: rss
       url: "https://news.google.com/rss/search?q=Tubi+streaming&hl=en-US&gl=US&ceid=US:en"
-    - label: tubi_business_news
+    - label: tubi_news_fox
       type: rss
-      url: "https://news.google.com/rss/search?q=Tubi+TV+Fox&hl=en-US&gl=US&ceid=US:en"
-    - label: tubi_avod_news
+      url: "https://news.google.com/rss/search?q=Tubi+Fox&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_free
       type: rss
-      url: "https://news.google.com/rss/search?q=Tubi+AVOD+FAST&hl=en-US&gl=US&ceid=US:en"
-    - label: tubi_originals
+      url: "https://news.google.com/rss/search?q=Tubi+free+streaming&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_app
       type: rss
-      url: "https://news.google.com/rss/search?q=Tubi+originals+content&hl=en-US&gl=US&ceid=US:en"
-    - label: tubi_advertising
+      url: "https://news.google.com/rss/search?q=Tubi+app&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_movies
       type: rss
-      url: "https://news.google.com/rss/search?q=Tubi+advertising+CTV&hl=en-US&gl=US&ceid=US:en"
+      url: "https://news.google.com/rss/search?q=Tubi+movies&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_shows
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+TV+shows&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_originals
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+originals&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_advertising
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+advertising&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_avod
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+AVOD&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_fast
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+FAST&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_viewers
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+viewers+users&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_content
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+content+library&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_deals
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+partnership+deal&hl=en-US&gl=US&ceid=US:en"
+    - label: tubi_news_growth
+      type: rss
+      url: "https://news.google.com/rss/search?q=Tubi+growth+expansion&hl=en-US&gl=US&ceid=US:en"
+    
+    # Bing News for additional coverage
+    - label: tubi_bing_main
+      type: rss
+      url: "https://www.bing.com/news/search?q=Tubi&format=rss"
+    - label: tubi_bing_streaming
+      type: rss
+      url: "https://www.bing.com/news/search?q=Tubi+streaming&format=rss"
+    
   search_queries:
-    - "Tubi streaming news"
-    - "Tubi originals announcement"
-    - "Tubi advertising technology"
-    - "Tubi app updates features"
-    - "Tubi Fox Corporation"
-    - "Tubi subscriber growth"
-    - "Tubi content library"
-    - "Tubi FAST channels"
-    - "Tubi partnership deals"
-    - "Tubi market share"
+    - "Tubi streaming news today"
+    - "Tubi originals new releases"
+    - "Tubi advertising revenue"
+    - "Tubi app updates"
+    - "Tubi Fox Corporation earnings"
+    - "Tubi user growth metrics"
+    - "Tubi content deals"
+    - "Tubi FAST channels lineup"
+    - "Tubi partnership announcements"
+    - "Tubi market share Nielsen"
+    - "Tubi vs Netflix"
+    - "Tubi vs Roku Channel"
+    - "Tubi Super Bowl"
+    - "Tubi new features 2025"
+    - "Tubi international expansion"
 
 # =============================================================================
 # PRIMARY STREAMING SERVICES (20)
@@ -53,11 +100,22 @@ competitors:
       - label: youtube_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=YouTube+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: youtube_google_news_2
+        type: rss
+        url: "https://news.google.com/rss/search?q=YouTube+streaming+advertising&hl=en-US&gl=US&ceid=US:en"
+      - label: youtube_primetime
+        type: rss
+        url: "https://news.google.com/rss/search?q=YouTube+Primetime+Channels&hl=en-US&gl=US&ceid=US:en"
+      - label: youtube_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=YouTube+TV&format=rss"
     search_queries:
       - "YouTube TV new features"
       - "YouTube streaming AVOD"
       - "YouTube advertising technology"
       - "YouTube Shorts monetization"
+      - "YouTube Primetime Channels"
+      - "YouTube NFL Sunday Ticket"
 
   - id: netflix
     name: "Netflix"
@@ -69,11 +127,25 @@ competitors:
       - label: netflix_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=Netflix+streaming+news&hl=en-US&gl=US&ceid=US:en"
+      - label: netflix_google_ads
+        type: rss
+        url: "https://news.google.com/rss/search?q=Netflix+advertising+ads&hl=en-US&gl=US&ceid=US:en"
+      - label: netflix_google_subscribers
+        type: rss
+        url: "https://news.google.com/rss/search?q=Netflix+subscribers+growth&hl=en-US&gl=US&ceid=US:en"
+      - label: netflix_google_originals
+        type: rss
+        url: "https://news.google.com/rss/search?q=Netflix+originals+shows&hl=en-US&gl=US&ceid=US:en"
+      - label: netflix_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Netflix+streaming&format=rss"
     search_queries:
       - "Netflix ad-supported tier"
       - "Netflix originals announcements"
       - "Netflix streaming technology"
       - "Netflix subscriber growth"
+      - "Netflix password sharing"
+      - "Netflix live sports"
 
   - id: disney
     name: "Disney+ / Hulu / ESPN+"
@@ -84,12 +156,23 @@ competitors:
         url: "https://thewaltdisneycompany.com/feed/"
       - label: disney_google_news
         type: rss
-        url: "https://news.google.com/rss/search?q=Disney+Plus+Hulu+streaming&hl=en-US&gl=US&ceid=US:en"
+        url: "https://news.google.com/rss/search?q=Disney+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: hulu_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Hulu+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: espn_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=ESPN+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: disney_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Disney+Plus&format=rss"
     search_queries:
       - "Disney+ ad tier features"
       - "Hulu streaming updates"
       - "Disney+ originals"
       - "ESPN+ streaming"
+      - "Disney bundle pricing"
+      - "Disney streaming subscribers"
 
   - id: amazon
     name: "Prime Video / Freevee"
@@ -100,12 +183,23 @@ competitors:
         url: "https://press.aboutamazon.com/rss/news-releases"
       - label: amazon_google_news
         type: rss
-        url: "https://news.google.com/rss/search?q=Amazon+Prime+Video+Freevee&hl=en-US&gl=US&ceid=US:en"
+        url: "https://news.google.com/rss/search?q=Amazon+Prime+Video&hl=en-US&gl=US&ceid=US:en"
+      - label: freevee_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Amazon+Freevee&hl=en-US&gl=US&ceid=US:en"
+      - label: amazon_streaming_ads
+        type: rss
+        url: "https://news.google.com/rss/search?q=Amazon+streaming+advertising&hl=en-US&gl=US&ceid=US:en"
+      - label: amazon_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Prime+Video&format=rss"
     search_queries:
       - "Prime Video new features"
       - "Amazon Freevee AVOD"
       - "Amazon streaming advertising"
       - "Thursday Night Football streaming"
+      - "Amazon Prime Video ads"
+      - "Amazon streaming sports"
 
   - id: roku
     name: "Roku / The Roku Channel"
@@ -117,11 +211,22 @@ competitors:
       - label: roku_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=Roku+Channel+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: roku_google_fast
+        type: rss
+        url: "https://news.google.com/rss/search?q=Roku+FAST+channels&hl=en-US&gl=US&ceid=US:en"
+      - label: roku_google_ads
+        type: rss
+        url: "https://news.google.com/rss/search?q=Roku+advertising&hl=en-US&gl=US&ceid=US:en"
+      - label: roku_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Roku+Channel&format=rss"
     search_queries:
       - "Roku Channel FAST"
       - "Roku OS updates"
       - "Roku advertising platform"
       - "Roku originals"
+      - "Roku streaming market share"
+      - "Roku vs Tubi"
 
   - id: paramount
     name: "Paramount+ / Pluto TV"
@@ -129,12 +234,22 @@ competitors:
     feeds:
       - label: paramount_google_news
         type: rss
-        url: "https://news.google.com/rss/search?q=Paramount+Plus+Pluto+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+        url: "https://news.google.com/rss/search?q=Paramount+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: pluto_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Pluto+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: paramount_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Paramount+Plus&format=rss"
+      - label: pluto_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Pluto+TV&format=rss"
     search_queries:
       - "Paramount+ streaming features"
       - "Pluto TV FAST channels"
       - "Paramount streaming advertising"
       - "CBS streaming"
+      - "Paramount Global streaming"
 
   - id: peacock
     name: "Peacock (NBCUniversal)"
@@ -145,12 +260,19 @@ competitors:
         url: "https://www.nbcuniversal.com/press-releases/rss"
       - label: peacock_google_news
         type: rss
-        url: "https://news.google.com/rss/search?q=Peacock+streaming+NBCUniversal&hl=en-US&gl=US&ceid=US:en"
+        url: "https://news.google.com/rss/search?q=Peacock+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: peacock_google_sports
+        type: rss
+        url: "https://news.google.com/rss/search?q=Peacock+NFL+sports&hl=en-US&gl=US&ceid=US:en"
+      - label: peacock_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Peacock+streaming&format=rss"
     search_queries:
       - "Peacock streaming features"
       - "Peacock ad-supported tier"
       - "NBCUniversal streaming"
       - "Peacock sports streaming"
+      - "Peacock subscribers"
 
   - id: max
     name: "Max / HBO (Warner Bros Discovery)"
@@ -158,12 +280,22 @@ competitors:
     feeds:
       - label: max_google_news
         type: rss
-        url: "https://news.google.com/rss/search?q=Max+HBO+streaming+Warner&hl=en-US&gl=US&ceid=US:en"
+        url: "https://news.google.com/rss/search?q=Max+streaming+HBO&hl=en-US&gl=US&ceid=US:en"
+      - label: wbd_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Warner+Bros+Discovery+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: hbo_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=HBO+originals&hl=en-US&gl=US&ceid=US:en"
+      - label: max_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Max+HBO+streaming&format=rss"
     search_queries:
       - "Max streaming HBO"
       - "Warner Bros Discovery streaming"
       - "Max ad tier"
       - "HBO originals streaming"
+      - "Max subscribers"
 
   - id: apple
     name: "Apple TV+"
@@ -175,23 +307,37 @@ competitors:
       - label: apple_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=Apple+TV+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: apple_google_originals
+        type: rss
+        url: "https://news.google.com/rss/search?q=Apple+TV+Plus+originals&hl=en-US&gl=US&ceid=US:en"
+      - label: apple_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Apple+TV+Plus&format=rss"
     search_queries:
       - "Apple TV+ originals"
       - "Apple TV+ streaming"
       - "Apple MLS streaming"
       - "Apple TV advertising"
+      - "Apple TV+ subscribers"
 
   - id: fox
-    name: "Fox / Tubi Parent"
+    name: "Fox Corporation"
     category: streaming
     feeds:
       - label: fox_corp
         type: rss
         url: "https://www.foxcorporation.com/feed/"
+      - label: fox_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Fox+Corporation+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: fox_sports_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=Fox+Sports+streaming&hl=en-US&gl=US&ceid=US:en"
     search_queries:
       - "Fox streaming strategy"
       - "Fox AVOD advertising"
       - "Fox sports streaming"
+      - "Fox Corporation earnings"
 
   - id: plex
     name: "Plex"
@@ -200,9 +346,16 @@ competitors:
       - label: plex_blog
         type: rss
         url: "https://www.plex.tv/blog/feed/"
+      - label: plex_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Plex+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: plex_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Plex+streaming&format=rss"
     search_queries:
       - "Plex streaming AVOD"
       - "Plex free movies"
+      - "Plex FAST channels"
 
   - id: fubo
     name: "Fubo TV"
@@ -211,6 +364,12 @@ competitors:
       - label: fubo_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=Fubo+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: fubo_google_sports
+        type: rss
+        url: "https://news.google.com/rss/search?q=Fubo+sports+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: fubo_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Fubo+TV&format=rss"
     search_queries:
       - "Fubo TV sports streaming"
       - "Fubo TV features"
@@ -223,6 +382,9 @@ competitors:
       - label: sling_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=Sling+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: sling_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Sling+TV&format=rss"
     search_queries:
       - "Sling TV features"
       - "Sling TV pricing"
@@ -235,6 +397,9 @@ competitors:
       - label: directv_google_news
         type: rss
         url: "https://news.google.com/rss/search?q=DirecTV+Stream+streaming&hl=en-US&gl=US&ceid=US:en"
+      - label: directv_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=DirecTV+Stream&format=rss"
     search_queries:
       - "DirecTV streaming"
       - "DirecTV Stream features"
@@ -246,6 +411,9 @@ competitors:
       - label: espn_press
         type: rss
         url: "https://espnpressroom.com/us/feed/"
+      - label: espn_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=ESPN+Plus+streaming&hl=en-US&gl=US&ceid=US:en"
     search_queries:
       - "ESPN+ streaming features"
       - "ESPN streaming sports"
@@ -260,6 +428,122 @@ competitors:
     search_queries:
       - "AMC+ streaming"
       - "AMC Networks streaming"
+  
+  # Additional FAST/AVOD competitors (Direct Tubi competitors)
+  - id: stirr
+    name: "Stirr"
+    category: streaming
+    feeds:
+      - label: stirr_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Stirr+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Stirr streaming FAST"
+      - "Sinclair Stirr"
+
+  - id: amazon_freevee
+    name: "Amazon Freevee"
+    category: streaming
+    feeds:
+      - label: freevee_google_main
+        type: rss
+        url: "https://news.google.com/rss/search?q=Amazon+Freevee&hl=en-US&gl=US&ceid=US:en"
+      - label: freevee_google_originals
+        type: rss
+        url: "https://news.google.com/rss/search?q=Freevee+originals&hl=en-US&gl=US&ceid=US:en"
+      - label: freevee_bing
+        type: rss
+        url: "https://www.bing.com/news/search?q=Amazon+Freevee&format=rss"
+    search_queries:
+      - "Freevee streaming"
+      - "Freevee originals"
+      - "Freevee AVOD growth"
+
+  - id: samsung_tv_plus
+    name: "Samsung TV Plus"
+    category: streaming
+    feeds:
+      - label: samsung_tv_plus_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=Samsung+TV+Plus&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Samsung TV Plus FAST"
+      - "Samsung TV Plus channels"
+
+  - id: lg_channels
+    name: "LG Channels"
+    category: streaming
+    feeds:
+      - label: lg_channels_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=LG+Channels+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "LG Channels FAST"
+      - "LG free streaming"
+
+  - id: vizio_watchfree
+    name: "Vizio WatchFree+"
+    category: streaming
+    feeds:
+      - label: vizio_watchfree_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=Vizio+WatchFree&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Vizio WatchFree FAST"
+      - "Vizio streaming"
+
+  - id: redbox
+    name: "Redbox Free Live TV"
+    category: streaming
+    feeds:
+      - label: redbox_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=Redbox+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Redbox streaming"
+      - "Redbox free TV"
+
+  - id: filmrise
+    name: "FilmRise"
+    category: streaming
+    feeds:
+      - label: filmrise_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=FilmRise+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "FilmRise FAST"
+      - "FilmRise streaming"
+
+  - id: screenpix
+    name: "ScreenPix"
+    category: streaming
+    feeds:
+      - label: screenpix_google_news
+        type: rss
+        url: "https://news.google.com/rss/search?q=ScreenPix+movies&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "ScreenPix streaming"
+
+  - id: imdb_tv
+    name: "IMDb TV / Freevee"
+    category: streaming
+    feeds:
+      - label: imdb_tv_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=IMDb+TV+streaming&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "IMDb TV streaming"
+
+  - id: peacock_free
+    name: "Peacock Free Tier"
+    category: streaming
+    feeds:
+      - label: peacock_free_google
+        type: rss
+        url: "https://news.google.com/rss/search?q=Peacock+free+tier&hl=en-US&gl=US&ceid=US:en"
+    search_queries:
+      - "Peacock free streaming"
+      - "Peacock AVOD"
 
   - id: xumo
     name: "Xumo (Comcast/Charter)"
@@ -468,30 +752,113 @@ competitors:
 # INDUSTRY NEWS SOURCES (50+)
 # =============================================================================
 industry_feeds:
-  # Google News - Industry Wide (Real-time)
+  # ==========================================================================
+  # GOOGLE NEWS - INDUSTRY WIDE (Real-time, 30+ feeds)
+  # ==========================================================================
   - label: streaming_wars_news
     type: rss
     url: "https://news.google.com/rss/search?q=streaming+wars+2025&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_industry_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+industry+news&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_platform_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+platform+service&hl=en-US&gl=US&ceid=US:en"
     
   - label: fast_channels_news
     type: rss
     url: "https://news.google.com/rss/search?q=FAST+channels+streaming&hl=en-US&gl=US&ceid=US:en"
     
+  - label: fast_tv_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=FAST+TV+free+streaming&hl=en-US&gl=US&ceid=US:en"
+    
   - label: avod_news
     type: rss
     url: "https://news.google.com/rss/search?q=AVOD+advertising+streaming&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: avod_growth_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=AVOD+free+streaming+growth&hl=en-US&gl=US&ceid=US:en"
     
   - label: ctv_advertising_news
     type: rss
     url: "https://news.google.com/rss/search?q=connected+TV+CTV+advertising&hl=en-US&gl=US&ceid=US:en"
     
+  - label: ctv_programmatic_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=CTV+programmatic+advertising&hl=en-US&gl=US&ceid=US:en"
+    
   - label: streaming_subscribers_news
     type: rss
     url: "https://news.google.com/rss/search?q=streaming+subscribers+growth&hl=en-US&gl=US&ceid=US:en"
     
+  - label: streaming_earnings_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+earnings+revenue&hl=en-US&gl=US&ceid=US:en"
+    
   - label: cord_cutting_news
     type: rss
     url: "https://news.google.com/rss/search?q=cord+cutting+streaming&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_mergers_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+merger+acquisition&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_deals_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+content+deal+licensing&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_originals_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+originals+content&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_sports_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+sports+live&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_ai_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+AI+personalization&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_ads_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+ads+advertising+tier&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: free_streaming_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=free+streaming+service&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_bundles_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+bundle+pricing&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: nielsen_streaming_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=Nielsen+streaming+ratings&hl=en-US&gl=US&ceid=US:en"
+    
+  - label: streaming_viewership_news
+    type: rss
+    url: "https://news.google.com/rss/search?q=streaming+viewership+ratings&hl=en-US&gl=US&ceid=US:en"
+    
+  # Bing News for additional coverage
+  - label: streaming_bing
+    type: rss
+    url: "https://www.bing.com/news/search?q=streaming+wars&format=rss"
+    
+  - label: fast_channels_bing
+    type: rss
+    url: "https://www.bing.com/news/search?q=FAST+channels&format=rss"
+    
+  - label: avod_bing
+    type: rss
+    url: "https://www.bing.com/news/search?q=AVOD+streaming&format=rss"
+    
+  - label: ctv_advertising_bing
+    type: rss
+    url: "https://www.bing.com/news/search?q=connected+TV+advertising&format=rss"
 
   # Entertainment Trade Publications
   - label: variety
@@ -1004,25 +1371,25 @@ industry_feeds:
 # =============================================================================
 global:
   # Time window for article freshness
-  lookback_hours: 48
+  lookback_hours: 72
   
-  # Feed fetching settings
-  max_articles_per_feed: 20
-  feed_timeout: 15
-  max_concurrent_feeds: 10
+  # Feed fetching settings (increased for 3x volume)
+  max_articles_per_feed: 25
+  feed_timeout: 20
+  max_concurrent_feeds: 20
   
-  # Scoring thresholds (lowered to capture more data)
-  min_relevance_score: 3.0
-  min_impact_score: 3.0
-  min_novelty_score: 0.15
+  # Scoring thresholds (capture more data)
+  min_relevance_score: 2.5
+  min_impact_score: 2.5
+  min_novelty_score: 0.10
   
-  # Processing limits (increased for better coverage)
-  max_items_total: 200
-  max_report_items: 40
+  # Processing limits (3x increase)
+  max_items_total: 500
+  max_report_items: 75
   
-  # Web search settings
+  # Web search settings (increased)
   enable_web_search: true
-  max_web_searches: 30
+  max_web_searches: 50
   
   # OpenAI model settings
   models:

@@ -178,6 +178,20 @@ def get_all_feed_configs() -> List[dict]:
     timeout = getattr(config.global_config, 'feed_timeout', DEFAULT_TIMEOUT)
     max_items = config.global_config.max_articles_per_feed
     
+    # TUBI FEEDS FIRST (our company - high priority)
+    if config.tubi and config.tubi.feeds:
+        for feed in config.tubi.feeds:
+            feeds.append({
+                "url": feed.url,
+                "competitor_id": "tubi",
+                "label": feed.label,
+                "max_items": max_items,
+                "filter_keywords": feed.filter_keywords if feed.filter_keywords else None,
+                "timeout": timeout,
+                "is_industry": False,
+                "is_tubi": True,  # Mark as Tubi source
+            })
+    
     # Competitor feeds
     for competitor in config.competitors:
         for feed in competitor.feeds:

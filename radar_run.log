@@ -1,0 +1,62 @@
+/Users/rrao/competitor/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+
+============================================================
+  TUBI RADAR SWARM ORCHESTRATOR v2
+  Run ID: 6
+============================================================
+
+PHASE 1: Data Collection
+----------------------------------------
+  rss: 2305 articles
+  web_search: 0 articles
+  Stored 1458 articles to database
+  Total: 2305 articles in 47.1s
+
+PHASE 2: Classification Swarm
+----------------------------------------
+  Classified 231 intel items from 2305 articles
+  Stored 149 intel items to database
+  Time: 127.7s
+
+  Categories: {'strategic': 144, 'pricing': 27, 'marketing': 36, 'ai_ads': 11, 'content': 13}
+
+PHASE 3: Specialist Analysis
+----------------------------------------
+  Opportunities: 5 identified
+  Threats: 13 identified
+  Trends: 10 identified
+  Competitor Profiles: 24 built
+  Time: 82.5s
+
+PHASE 4: Critic Review
+----------------------------------------
+  trends: good (NEEDS REVISION)
+  opportunities: good (NEEDS REVISION)
+  threats: acceptable (NEEDS REVISION)
+  Time: 4.8s
+
+PHASE 5: Memory Update
+----------------------------------------
+  Indexed 231 intel items to vector store
+  Stored 24 competitor profiles
+  Stored 10 trends
+  Time: 20.2s
+
+PHASE 6: Report Synthesis
+----------------------------------------
+  Generated executive brief
+  Time: 23.4s
+
+============================================================
+  SWARM COMPLETE
+  Total time: 305.8s
+  Articles: 2305
+  Intel: 231
+  Threats: 13
+  Opportunities: 5
+  Trends: 10
+============================================================
+
+
+📄 Report: /Users/rrao/competitor/reports/radar-swarm-2025-12-22-run6.md

@@ -73,24 +73,48 @@ class ClassifierWorker:
             snippet = (a.get('raw_snippet') or '')[:400]
             article_text += f"\n{i+1}. [{a.get('competitor_id', 'unknown')}] {title}\n   {snippet}\n"
         
-        prompt = f"""Classify streaming/CTV industry articles for Tubi competitive intelligence.
+        prompt = f"""Extract key facts from streaming industry articles.
 
-For EACH relevant article, output ONE LINE:
+Output format - ONE LINE per article:
 NUM|CATEGORY|IMPACT|RELEVANCE|ENTITIES|SUMMARY
 
-- NUM: Article number
-- CATEGORY: strategic/product/content/marketing/ai_ads/pricing
-- IMPACT: 1-10 (significance of this move)
-- RELEVANCE: 1-10 (relevance to streaming/Tubi)
-- ENTITIES: Key companies/products mentioned (comma-separated)
-- SUMMARY: One sentence - what happened, why it matters
+CATEGORY (pick one):
+- strategic: M&A, partnerships, subscriber/revenue numbers, market share
+- product: New features, app updates, platform changes
+- content: Shows, movies, licensing, originals announcements
+- marketing: Ad campaigns, brand partnerships
+- ai_ads: Ad tech, CTV targeting, programmatic
+- pricing: Price changes, new tiers, bundles
 
-SKIP noise (celebrity gossip, reviews, unrelated tech). Include if IMPACT >= 4 OR RELEVANCE >= 4.
+SCORES:
+- IMPACT: 5-10 (5=minor, 7=notable, 9=major news)
+- RELEVANCE: 5-10 (streaming industry relevance)
+
+ENTITIES: Company names only (comma-separated)
+
+SUMMARY RULES - CRITICAL:
+Write exactly what happened. Include WHO, WHAT, and specific NUMBERS.
+
+CORRECT FORMAT:
+"Tubi reached 100M monthly active users in June 2025"
+"Netflix acquired Warner Bros for $82.7 billion"
+"Roku added 40 new FAST channels in UK"
+"Amazon shutting down Freevee, moving content to Prime Video"
+"Disney+ reached 150M subscribers, up 12% YoY"
+
+FORBIDDEN WORDS (never use):
+- "highlighting" "indicating" "underscoring" "suggesting"
+- "significant" "notable" "important" "key" "major" (without numbers)
+- "amid" "landscape" "trajectory" "evolution"
+- "competitive advantage" "market position" "growth trajectory"
+- "could impact" "may affect" "aims to"
+
+If you can't state a specific fact with numbers, SKIP the article.
 
 Articles:
 {article_text}
 
-Output (no headers, one per line):"""
+Output:"""
 
         try:
             response = self.llm.invoke([HumanMessage(content=prompt)])

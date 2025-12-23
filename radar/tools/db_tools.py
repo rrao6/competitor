@@ -67,7 +67,7 @@ def store_articles(run_id: int, items: list[dict]) -> int:
     """
     Store article candidates in the database.
     
-    Skips articles with duplicate hashes.
+    Skips articles with duplicate hashes or URLs.
     
     Args:
         run_id: The current run ID
@@ -79,16 +79,26 @@ def store_articles(run_id: int, items: list[dict]) -> int:
     stored_count = 0
     
     with get_session() as session:
-        # Get existing hashes
+        # Get existing hashes AND URLs for deduplication
         existing_hashes = set(
             row[0] for row in session.execute(
                 select(Article.hash)
-            ).all()
+            ).all() if row[0]
+        )
+        existing_urls = set(
+            row[0] for row in session.execute(
+                select(Article.url)
+            ).all() if row[0]
         )
         
         for item in items:
             article_hash = item.get("hash", "")
-            if article_hash in existing_hashes:
+            article_url = item.get("url", "")
+            
+            # Skip if we already have this article (by hash OR URL)
+            if article_hash and article_hash in existing_hashes:
+                continue
+            if article_url and article_url in existing_urls:
                 continue
             
             # Parse published_at
@@ -111,6 +121,7 @@ def store_articles(run_id: int, items: list[dict]) -> int:
             )
             session.add(article)
             existing_hashes.add(article_hash)
+            existing_urls.add(article_url)
             stored_count += 1
     
     return stored_count
