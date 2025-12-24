@@ -336,26 +336,42 @@ def api_tubi_intel():
         return jsonify({"error": "Database not connected", "intel": [], "total": 0}), 500
     
     try:
-        limit = request.args.get('limit', 50, type=int)
+        limit = request.args.get('limit', 100, type=int)
+        min_impact = request.args.get('min_impact', 0, type=float)
+        category = request.args.get('category', '')
+        sort = request.args.get('sort', 'date')
         
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
-            # Only show articles where the ORIGINAL article mentions Tubi
-            # (title or raw article text - NOT the AI-generated summary)
-            rows = conn.execute(text("""
+            # Build query with filters
+            base_query = """
                 SELECT i.id, i.summary, i.category, i.impact_score, i.relevance_score,
                        i.related_urls_json, i.created_at, i.source_count,
                        a.id, a.title, a.url, a.published_at, a.source_label, a.competitor_id
                 FROM intel i
                 JOIN articles a ON i.article_id = a.id
                 WHERE a.published_at >= :cutoff
+                  AND i.impact_score >= :min_impact
                   AND (LOWER(a.title) LIKE '%tubi%' 
                        OR LOWER(COALESCE(a.raw_snippet, '')) LIKE '%tubi%'
                        OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
-                ORDER BY a.published_at DESC
-                LIMIT :limit
-            """), {"cutoff": cutoff, "limit": limit}).fetchall()
+            """
+            
+            params = {"cutoff": cutoff, "min_impact": min_impact, "limit": limit}
+            
+            if category:
+                base_query += " AND i.category = :category"
+                params["category"] = category
+            
+            if sort == 'impact':
+                base_query += " ORDER BY i.impact_score DESC"
+            else:
+                base_query += " ORDER BY a.published_at DESC"
+            
+            base_query += " LIMIT :limit"
+            
+            rows = conn.execute(text(base_query), params).fetchall()
             
             intel_list = []
             for r in rows:
