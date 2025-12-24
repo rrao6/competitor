@@ -1943,6 +1943,20 @@
             const res = await fetch('/api/stats');
             const data = await res.json();
             
+            // Check for errors
+            if (data.error) {
+                document.getElementById('stats-grid').innerHTML = `
+                    <div class="stat-card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <div style="color: var(--tubi-purple); font-size: 24px; margin-bottom: 12px;">⚠️ Database Not Connected</div>
+                        <div style="color: var(--text-secondary); margin-bottom: 8px;">${data.error}</div>
+                        <div style="color: var(--text-muted); font-size: 13px;">${data.hint || 'Check Vercel environment variables'}</div>
+                    </div>
+                `;
+                document.getElementById('dashboard-intel').innerHTML = '';
+                document.getElementById('dashboard-runs').innerHTML = '';
+                return;
+            }
+            
             // Also get last updated time
             let lastUpdated = 'Unknown';
             try {

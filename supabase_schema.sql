@@ -49,7 +49,10 @@ CREATE TABLE IF NOT EXISTS intel (
     relevance_score FLOAT,
     novelty_score FLOAT DEFAULT 0.5,
     source_count INTEGER DEFAULT 1,
+    entities_json TEXT,
     related_urls_json TEXT,
+    is_tubi_related BOOLEAN DEFAULT FALSE,
+    is_duplicate_of INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
     -- One intel per article
