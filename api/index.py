@@ -18,7 +18,7 @@ from functools import wraps
 
 from flask import Flask, render_template, jsonify, request, Response
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,18 +32,26 @@ def get_database_url():
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
     return db_url
 
+_engine = None
+
 def get_engine():
-    """Lazy engine creation for serverless."""
+    """Singleton engine for serverless - uses NullPool to avoid connection pooling issues."""
+    global _engine
+    if _engine is not None:
+        return _engine
+    
     db_url = get_database_url()
     if not db_url:
         return None
-    return create_engine(
+    
+    # Use NullPool for serverless - opens/closes connection each query
+    # This prevents "max clients reached" errors on Supabase
+    _engine = create_engine(
         db_url, 
-        pool_pre_ping=True,
-        pool_size=1,
-        max_overflow=0,
-        connect_args={"sslmode": "require"}
+        poolclass=NullPool,
+        connect_args={"sslmode": "require", "connect_timeout": 10}
     )
+    return _engine
 
 # ==============================================================================
 # Simple Cache
@@ -157,7 +165,7 @@ def api_debug():
 
 
 @app.route("/api/stats")
-@cached(ttl_seconds=120)
+@cached(ttl_seconds=300)
 def api_stats():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "hint": "Set DATABASE_URL in Vercel"}), 500
@@ -210,7 +218,7 @@ def api_stats():
 
 
 @app.route("/api/intel")
-@cached(ttl_seconds=60)
+@cached(ttl_seconds=300)
 def api_intel():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "total": 0}), 500
@@ -316,7 +324,7 @@ def api_intel():
 
 
 @app.route("/api/tubi/intel")
-@cached(ttl_seconds=60)
+@cached(ttl_seconds=300)
 def api_tubi_intel():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "total": 0}), 500
@@ -383,7 +391,7 @@ def api_tubi_intel():
 
 
 @app.route("/api/tubi/stats")
-@cached(ttl_seconds=120)
+@cached(ttl_seconds=300)
 def api_tubi_stats():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "total_intel": 0, "high_impact": 0, "sources_tracked": 0}), 500
@@ -506,7 +514,7 @@ def api_competitors():
 
 
 @app.route("/api/competitors/<competitor_id>/intel")
-@cached(ttl_seconds=60)
+@cached(ttl_seconds=300)
 def api_competitor_intel(competitor_id: str):
     if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "competitor_id": competitor_id}), 500
@@ -549,7 +557,7 @@ def api_competitor_intel(competitor_id: str):
 
 
 @app.route("/api/last-updated")
-@cached(ttl_seconds=60)
+@cached(ttl_seconds=300)
 def api_last_updated():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "last_article": None, "last_intel": None}), 500
