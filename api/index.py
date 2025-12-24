@@ -32,21 +32,18 @@ def get_database_url():
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
     return db_url
 
-db_url = get_database_url()
-engine = None
-
-if not db_url:
-    print("WARNING: DATABASE_URL environment variable not set!")
-else:
-    try:
-        engine = create_engine(db_url, pool_pre_ping=True)
-        # Test the connection
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        print(f"Database connected successfully")
-    except Exception as e:
-        print(f"Database connection error: {e}")
-        engine = None
+def get_engine():
+    """Lazy engine creation for serverless."""
+    db_url = get_database_url()
+    if not db_url:
+        return None
+    return create_engine(
+        db_url, 
+        pool_pre_ping=True,
+        pool_size=1,
+        max_overflow=0,
+        connect_args={"sslmode": "require"}
+    )
 
 # ==============================================================================
 # Simple Cache
@@ -110,18 +107,21 @@ def index():
 # ==============================================================================
 @app.route("/api/health")
 def api_health():
-    if not engine:
+    db_url = get_database_url()
+    if not db_url:
         return jsonify({
             "status": "unhealthy", 
-            "error": "DATABASE_URL not configured or connection failed",
-            "hint": "Set DATABASE_URL environment variable in Vercel"
+            "error": "DATABASE_URL not set",
+            "hint": "Set DATABASE_URL environment variable in Vercel",
+            "env_check": bool(os.environ.get('DATABASE_URL'))
         }), 500
     try:
-        with engine.connect() as conn:
+        engine = get_engine()
+        with get_engine().connect() as conn:
             conn.execute(text("SELECT 1"))
         return jsonify({"status": "healthy", "database": "connected", "cache_enabled": True})
     except Exception as e:
-        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+        return jsonify({"status": "unhealthy", "error": str(e), "db_url_length": len(db_url)}), 500
 
 
 @app.route("/api/debug")
@@ -133,34 +133,37 @@ def api_debug():
     
     # Try to connect and get error if any
     db_test = "not tested"
-    if engine:
+    db_error = None
+    if has_db:
         try:
+            engine = get_engine()
             with engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
             db_test = "connected"
         except Exception as e:
-            db_test = f"error: {str(e)[:100]}"
+            db_test = "failed"
+            db_error = str(e)
     
     return jsonify({
         "database_url_set": has_db,
         "database_url_length": len(db_url_raw),
         "database_url_masked": db_masked if has_db else None,
         "database_url_starts_with": db_url_raw[:15] if db_url_raw else None,
-        "engine_initialized": engine is not None,
         "db_test": db_test,
+        "db_error": db_error,
         "environment": os.environ.get('VERCEL_ENV', 'local'),
-        "python_version": sys.version,
+        "all_env_keys": [k for k in os.environ.keys() if 'DATABASE' in k or 'VERCEL' in k or 'PYTHON' in k],
     })
 
 
 @app.route("/api/stats")
 @cached(ttl_seconds=120)
 def api_stats():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "hint": "Set DATABASE_URL in Vercel"}), 500
     
     try:
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
             runs = conn.execute(text("SELECT COUNT(*) FROM runs")).scalar() or 0
@@ -209,7 +212,7 @@ def api_stats():
 @app.route("/api/intel")
 @cached(ttl_seconds=60)
 def api_intel():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "total": 0}), 500
     
     try:
@@ -218,7 +221,7 @@ def api_intel():
         category = request.args.get('category', '')
         min_impact = request.args.get('min_impact', 0, type=float)
         
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
             query = """
@@ -294,13 +297,13 @@ def api_intel():
 @app.route("/api/tubi/intel")
 @cached(ttl_seconds=60)
 def api_tubi_intel():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "total": 0}), 500
     
     try:
         limit = request.args.get('limit', 50, type=int)
         
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
             rows = conn.execute(text("""
@@ -357,11 +360,11 @@ def api_tubi_intel():
 @app.route("/api/tubi/stats")
 @cached(ttl_seconds=120)
 def api_tubi_stats():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "total_intel": 0, "high_impact": 0, "sources_tracked": 0}), 500
     
     try:
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
             total = conn.execute(text("""
@@ -395,7 +398,7 @@ def api_tubi_stats():
 @app.route("/api/competitors")
 @cached(ttl_seconds=300)
 def api_competitors():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "competitors": []}), 500
     
     competitors = [
@@ -415,7 +418,7 @@ def api_competitors():
     ]
     
     try:
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             for comp in competitors:
                 count = conn.execute(text("""
@@ -439,13 +442,13 @@ def api_competitors():
 @app.route("/api/competitors/<competitor_id>/intel")
 @cached(ttl_seconds=60)
 def api_competitor_intel(competitor_id: str):
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "intel": [], "competitor_id": competitor_id}), 500
     
     try:
         limit = request.args.get('limit', 50, type=int)
         
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
             rows = conn.execute(text("""
@@ -482,11 +485,11 @@ def api_competitor_intel(competitor_id: str):
 @app.route("/api/last-updated")
 @cached(ttl_seconds=60)
 def api_last_updated():
-    if not engine:
+    if not get_database_url():
         return jsonify({"error": "Database not connected", "last_article": None, "last_intel": None}), 500
     
     try:
-        with engine.connect() as conn:
+        with get_engine().connect() as conn:
             last_article = conn.execute(text("SELECT MAX(created_at) FROM articles")).scalar()
             last_intel = conn.execute(text("SELECT MAX(created_at) FROM intel")).scalar()
             return jsonify({
