@@ -220,10 +220,12 @@ def api_intel():
         offset = request.args.get('offset', 0, type=int)
         category = request.args.get('category', '')
         min_impact = request.args.get('min_impact', 0, type=float)
+        min_relevance = request.args.get('min_relevance', 6, type=float)  # Default: only streaming-relevant
         
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
+            # Filter by both impact AND relevance to streaming/CTV industry
             query = """
                 SELECT i.id, i.summary, i.category, i.impact_score, i.relevance_score,
                        i.related_urls_json, i.source_count, i.created_at,
@@ -231,9 +233,11 @@ def api_intel():
                        a.competitor_id
                 FROM intel i
                 JOIN articles a ON i.article_id = a.id
-                WHERE a.published_at >= :cutoff AND i.impact_score >= :min_impact
+                WHERE a.published_at >= :cutoff 
+                  AND i.impact_score >= :min_impact
+                  AND i.relevance_score >= :min_relevance
             """
-            params = {"cutoff": cutoff, "min_impact": min_impact}
+            params = {"cutoff": cutoff, "min_impact": min_impact, "min_relevance": min_relevance}
             
             if category:
                 query += " AND i.category = :category"
@@ -410,40 +414,76 @@ def api_competitors():
     if not get_database_url():
         return jsonify({"error": "Database not connected", "competitors": []}), 500
     
-    competitors = [
-        {"id": "netflix", "name": "Netflix", "tier": "major"},
-        {"id": "amazon_prime", "name": "Amazon Prime Video", "tier": "major"},
-        {"id": "disney_plus", "name": "Disney+", "tier": "major"},
-        {"id": "max", "name": "Max (HBO)", "tier": "major"},
-        {"id": "hulu", "name": "Hulu", "tier": "major"},
-        {"id": "peacock", "name": "Peacock", "tier": "major"},
-        {"id": "paramount_plus", "name": "Paramount+", "tier": "major"},
-        {"id": "apple_tv", "name": "Apple TV+", "tier": "major"},
-        {"id": "youtube", "name": "YouTube/YouTube TV", "tier": "major"},
-        {"id": "pluto_tv", "name": "Pluto TV", "tier": "fast"},
-        {"id": "roku_channel", "name": "The Roku Channel", "tier": "fast"},
-        {"id": "freevee", "name": "Amazon Freevee", "tier": "fast"},
-        {"id": "xumo", "name": "Xumo", "tier": "fast"},
-    ]
+    # Display names for competitor IDs
+    display_names = {
+        "netflix": "Netflix",
+        "amazon": "Amazon Prime Video",
+        "disney": "Disney+",
+        "max": "Max (HBO)",
+        "hulu": "Hulu",
+        "peacock": "Peacock",
+        "paramount": "Paramount+",
+        "apple": "Apple TV+",
+        "youtube": "YouTube/YouTube TV",
+        "roku": "Roku Channel",
+        "pluto": "Pluto TV",
+        "fubo": "Fubo TV",
+        "sling": "Sling TV",
+        "directv": "DirecTV Stream",
+        "fox": "Fox/Tubi",
+        "xumo": "Xumo",
+        "plex": "Plex",
+        "vix": "ViX",
+        "amc": "AMC+",
+        "britbox": "BritBox",
+        "samsung_tv_plus": "Samsung TV+",
+        "lg_channels": "LG Channels",
+        "vizio_watchfree": "Vizio WatchFree+",
+        "filmrise": "FilmRise",
+    }
+    
+    tier_map = {
+        "netflix": "major", "amazon": "major", "disney": "major", "max": "major",
+        "hulu": "major", "peacock": "major", "paramount": "major", "apple": "major",
+        "youtube": "major", "roku": "fast", "pluto": "fast", "fubo": "live",
+        "sling": "live", "directv": "live", "fox": "major", "xumo": "fast",
+    }
     
     try:
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
-            for comp in competitors:
-                count = conn.execute(text("""
-                    SELECT COUNT(*) FROM intel i JOIN articles a ON i.article_id = a.id
-                    WHERE a.published_at >= :cutoff AND a.competitor_id = :cid
-                """), {"cutoff": cutoff, "cid": comp["id"]}).scalar() or 0
-                comp["intel_count"] = count
+            
+            # Query actual data from database
+            rows = conn.execute(text("""
+                SELECT a.competitor_id, 
+                       COUNT(DISTINCT a.id) as article_count, 
+                       COUNT(i.id) as intel_count
+                FROM articles a
+                LEFT JOIN intel i ON i.article_id = a.id
+                WHERE a.published_at >= :cutoff 
+                  AND a.competitor_id IS NOT NULL
+                  AND a.competitor_id != 'industry'
+                  AND a.competitor_id != 'tubi'
+                GROUP BY a.competitor_id
+                ORDER BY intel_count DESC
+            """), {"cutoff": cutoff}).fetchall()
+            
+            competitors = []
+            for r in rows:
+                comp_id = r[0]
+                competitors.append({
+                    "id": comp_id,
+                    "name": display_names.get(comp_id, comp_id.replace("_", " ").title()),
+                    "tier": tier_map.get(comp_id, "other"),
+                    "article_count": r[1],
+                    "intel_count": r[2]
+                })
         
         return jsonify({"competitors": competitors})
         
     except Exception as e:
-        # Return competitors without counts on error
-        for comp in competitors:
-            comp["intel_count"] = 0
         return jsonify({
-            "competitors": competitors,
+            "competitors": [],
             "error": str(e)
         })
 

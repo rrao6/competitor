@@ -1632,15 +1632,12 @@
                 <button class="nav-link active" data-view="dashboard">Dashboard</button>
                 <button class="nav-link" data-view="intel">Intel</button>
                 <button class="nav-link" data-view="tubi">Tubi</button>
-                <button class="nav-link" data-view="alerts">Alerts</button>
                 <button class="nav-link" data-view="competitors">Competitors</button>
-                <button class="nav-link" data-view="runs">Runs</button>
-                <button class="nav-link" data-view="reports">Reports</button>
+                <button class="nav-link" data-view="alerts">Alerts</button>
             </nav>
 
             <div class="header-actions">
                 <button class="btn btn-ghost" onclick="refresh()">↻ Refresh</button>
-                <button class="btn btn-primary" onclick="showRunInfo()">Run Radar</button>
             </div>
         </div>
     </header>
@@ -1659,26 +1656,6 @@
                 <div class="intel-row" id="dashboard-intel"></div>
             </div>
 
-            <div class="section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Runs</h2>
-                    <button class="btn btn-ghost" onclick="showView('runs')">View All →</button>
-                </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Run</th>
-                                <th>Started</th>
-                                <th>Status</th>
-                                <th>Articles</th>
-                                <th>Intel</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboard-runs"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
         <!-- INTEL VIEW -->
@@ -1743,8 +1720,7 @@
                     <p class="page-subtitle">High-impact intel formatted for Slack. Copy & paste or connect your webhook.</p>
                 </div>
                 <div class="alerts-actions">
-                    <button class="btn btn-ghost" onclick="copyDigest()">📋 Copy Digest</button>
-                    <button class="btn btn-primary" onclick="showSlackSettings()">⚡ Connect Slack</button>
+                    <button class="btn btn-primary" onclick="copyDigest()">📋 Copy Digest</button>
                 </div>
             </div>
 
@@ -1785,79 +1761,7 @@
             <div class="competitors-grid" id="competitors-grid"></div>
         </div>
 
-        <!-- RUNS VIEW -->
-        <div id="view-runs" class="view">
-            <h1 class="page-title">Run History</h1>
-            <div class="table-wrapper">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Run ID</th>
-                            <th>Started</th>
-                            <th>Finished</th>
-                            <th>Status</th>
-                            <th>Articles</th>
-                            <th>Intel</th>
-                            <th>Report</th>
-                        </tr>
-                    </thead>
-                    <tbody id="runs-table"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- REPORTS VIEW -->
-        <div id="view-reports" class="view">
-            <h1 class="page-title">Reports</h1>
-            <div class="reports-layout">
-                <div class="reports-sidebar">
-                    <div class="reports-sidebar-header">Available Reports</div>
-                    <div class="reports-list" id="reports-list"></div>
-                </div>
-                <div class="report-viewer">
-                    <div class="report-content" id="report-content">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📄</div>
-                            <p class="empty-state-text">Select a report to view</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
-
-    <!-- SLACK SETTINGS MODAL -->
-    <div class="slack-settings-modal" id="slack-settings-modal" onclick="if(event.target.id==='slack-settings-modal')closeSlackSettings()">
-        <div class="slack-settings-content">
-            <h2 class="slack-settings-title">⚡ Connect to Slack</h2>
-            <p class="slack-settings-desc">Set up a webhook to receive alerts directly in your Slack channel.</p>
-            
-            <div class="slack-input-group">
-                <label class="slack-input-label">Slack Webhook URL</label>
-                <input type="url" class="slack-input" id="slack-webhook-url" placeholder="https://hooks.slack.com/services/..." />
-            </div>
-            
-            <div class="slack-input-group">
-                <label class="slack-input-label">Channel Name (for display)</label>
-                <input type="text" class="slack-input" id="slack-channel" placeholder="#competitive-intel" />
-            </div>
-            
-            <div class="slack-input-group">
-                <label class="slack-input-label">Minimum Impact Score to Alert</label>
-                <select class="slack-input" id="slack-min-impact">
-                    <option value="9">9+ (Critical only)</option>
-                    <option value="8" selected>8+ (High priority)</option>
-                    <option value="7">7+ (Important)</option>
-                    <option value="5">5+ (All significant)</option>
-                </select>
-            </div>
-            
-            <div class="slack-settings-footer">
-                <button class="btn btn-ghost" onclick="closeSlackSettings()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveSlackSettings()">Save & Test</button>
-            </div>
-        </div>
-    </div>
 
     <!-- INTEL DETAIL MODAL -->
     <div class="modal-overlay" id="intel-modal" onclick="closeModalOnOverlay(event)">
@@ -1932,8 +1836,6 @@
             else if (view === 'tubi') loadTubi();
             else if (view === 'alerts') loadAlerts();
             else if (view === 'competitors') loadCompetitors();
-            else if (view === 'runs') loadRuns();
-            else if (view === 'reports') loadReports();
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -1953,7 +1855,6 @@
                     </div>
                 `;
                 document.getElementById('dashboard-intel').innerHTML = '';
-                document.getElementById('dashboard-runs').innerHTML = '';
                 return;
             }
             
@@ -1993,17 +1894,6 @@
                     <div class="stat-value" style="font-size: 14px;">${lastUpdated}</div>
                 </div>
             `;
-
-            // Recent runs
-            document.getElementById('dashboard-runs').innerHTML = data.recent_runs.slice(0, 5).map(r => `
-                <tr>
-                    <td><strong>#${r.id}</strong></td>
-                    <td>${formatDate(r.started_at)}</td>
-                    <td><span class="status-badge status-${r.status}">${r.status}</span></td>
-                    <td>${r.articles_count}</td>
-                    <td>${r.intel_count}</td>
-                </tr>
-            `).join('');
 
             // Load intel
             const intelRes = await fetch('/api/intel?limit=10&min_impact=5');
@@ -2206,13 +2096,20 @@
             const res = await fetch('/api/competitors');
             const data = await res.json();
             
+            const tierLabels = {
+                'major': 'Major Platform',
+                'fast': 'FAST/AVOD',
+                'live': 'Live TV',
+                'other': 'Other'
+            };
+            
             document.getElementById('competitors-grid').innerHTML = data.competitors.map(c => `
                 <div class="competitor-card" onclick="showCompetitorIntel('${c.id}', '${esc(c.name)}')" style="cursor: pointer;">
                     <div class="competitor-header">
                         <div class="competitor-avatar">${c.name.charAt(0)}</div>
                         <div>
                             <div class="competitor-name">${esc(c.name)}</div>
-                            <div class="competitor-category">${c.category}</div>
+                            <div class="competitor-category">${tierLabels[c.tier] || c.tier}</div>
                         </div>
                     </div>
                     <div class="competitor-stats">
@@ -2223,10 +2120,6 @@
                         <div class="competitor-stat">
                             <div class="competitor-stat-value">${c.article_count || 0}</div>
                             <div class="competitor-stat-label">Articles</div>
-                        </div>
-                        <div class="competitor-stat">
-                            <div class="competitor-stat-value">${c.feeds_count}</div>
-                            <div class="competitor-stat-label">Feeds</div>
                         </div>
                     </div>
                 </div>
@@ -2296,63 +2189,6 @@
             return '#6b7280';
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // RUNS
-        // ═══════════════════════════════════════════════════════════════
-        async function loadRuns() {
-            const res = await fetch('/api/stats');
-            const data = await res.json();
-            
-            document.getElementById('runs-table').innerHTML = data.recent_runs.map(r => `
-                <tr>
-                    <td><strong>#${r.id}</strong></td>
-                    <td>${formatDate(r.started_at)}</td>
-                    <td>${r.finished_at ? formatDate(r.finished_at) : '—'}</td>
-                    <td><span class="status-badge status-${r.status}">${r.status}</span></td>
-                    <td>${r.articles_count}</td>
-                    <td>${r.intel_count}</td>
-                    <td>${r.report_path ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="viewReportFromRun(${r.id})">View</button>` : '—'}</td>
-                </tr>
-            `).join('');
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        // REPORTS
-        // ═══════════════════════════════════════════════════════════════
-        async function loadReports() {
-            const res = await fetch('/api/stats');
-            const data = await res.json();
-            const withReports = data.recent_runs.filter(r => r.report_path);
-            
-            const list = document.getElementById('reports-list');
-            if (!withReports.length) {
-                list.innerHTML = `<div class="empty-state"><p class="empty-state-text">No reports yet</p></div>`;
-                return;
-            }
-            
-            list.innerHTML = withReports.map((r, i) => `
-                <div class="report-item ${i === 0 ? 'active' : ''}" data-run="${r.id}" onclick="selectReport(this, ${r.id})">
-                    <div class="report-item-title">Run #${r.id}</div>
-                    <div class="report-item-meta">${formatDate(r.started_at)} • ${r.intel_count} intel</div>
-                </div>
-            `).join('');
-
-            if (withReports.length) viewReport(withReports[0].id);
-        }
-
-        function selectReport(el, runId) {
-            document.querySelectorAll('.report-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            viewReport(runId);
-        }
-
-        async function viewReport(runId) {
-            const res = await fetch(`/api/reports/${runId}`);
-            const data = await res.json();
-            if (data.content) {
-                document.getElementById('report-content').innerHTML = marked.parse(data.content);
-            }
-        }
 
         function viewReportFromRun(runId) {
             showView('reports');
