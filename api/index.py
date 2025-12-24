@@ -227,9 +227,11 @@ def api_intel():
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
+            # Use DISTINCT ON to deduplicate by title, keeping highest impact
             # Filter by both impact AND relevance to streaming/CTV industry
             query = """
-                SELECT i.id, i.summary, i.category, i.impact_score, i.relevance_score,
+                SELECT DISTINCT ON (a.title) 
+                       i.id, i.summary, i.category, i.impact_score, i.relevance_score,
                        i.related_urls_json, i.source_count, i.created_at,
                        a.id as article_id, a.title, a.url, a.published_at, a.source_label,
                        a.competitor_id
@@ -249,13 +251,16 @@ def api_intel():
                 query += " AND a.competitor_id = :competitor"
                 params["competitor"] = competitor
             
-            # Sorting
-            if sort_by == 'impact':
-                query += " ORDER BY i.impact_score DESC, a.published_at DESC"
-            else:
-                query += " ORDER BY a.published_at DESC"
+            # DISTINCT ON requires ORDER BY to include the distinct column first
+            query += " ORDER BY a.title, i.impact_score DESC"
             
-            query += " LIMIT :limit OFFSET :offset"
+            # Wrap in subquery to apply final sorting and limit
+            if sort_by == 'impact':
+                wrapper = f"SELECT * FROM ({query}) sub ORDER BY impact_score DESC, published_at DESC LIMIT :limit OFFSET :offset"
+            else:
+                wrapper = f"SELECT * FROM ({query}) sub ORDER BY published_at DESC LIMIT :limit OFFSET :offset"
+            
+            query = wrapper
             params["limit"] = limit
             params["offset"] = offset
             
