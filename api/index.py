@@ -98,8 +98,14 @@ def cached(ttl_seconds: int = 300):
 # ==============================================================================
 # Flask App
 # ==============================================================================
-template_dir = Path(__file__).parent.parent / "dashboard" / "templates"
-static_dir = Path(__file__).parent.parent / "dashboard" / "static"
+# Try local api/templates first (Vercel), then fall back to dashboard/templates
+local_template_dir = Path(__file__).parent / "templates"
+dashboard_template_dir = Path(__file__).parent.parent / "dashboard" / "templates"
+template_dir = local_template_dir if local_template_dir.exists() else dashboard_template_dir
+
+local_static_dir = Path(__file__).parent / "static"
+dashboard_static_dir = Path(__file__).parent.parent / "dashboard" / "static"
+static_dir = local_static_dir if local_static_dir.exists() else dashboard_static_dir
 
 app = Flask(__name__, template_folder=str(template_dir), static_folder=str(static_dir))
 
