@@ -221,6 +221,8 @@ def api_intel():
         category = request.args.get('category', '')
         min_impact = request.args.get('min_impact', 0, type=float)
         min_relevance = request.args.get('min_relevance', 6, type=float)  # Default: only streaming-relevant
+        competitor = request.args.get('competitor', '')
+        sort_by = request.args.get('sort', 'date')  # 'date' or 'impact'
         
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
@@ -243,7 +245,17 @@ def api_intel():
                 query += " AND i.category = :category"
                 params["category"] = category
             
-            query += " ORDER BY a.published_at DESC LIMIT :limit OFFSET :offset"
+            if competitor:
+                query += " AND a.competitor_id = :competitor"
+                params["competitor"] = competitor
+            
+            # Sorting
+            if sort_by == 'impact':
+                query += " ORDER BY i.impact_score DESC, a.published_at DESC"
+            else:
+                query += " ORDER BY a.published_at DESC"
+            
+            query += " LIMIT :limit OFFSET :offset"
             params["limit"] = limit
             params["offset"] = offset
             

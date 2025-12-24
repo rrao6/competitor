@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Competitor Monitor</title>
+    <title>Streaming Intel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1624,8 +1624,8 @@
         <div class="header-inner">
             <div class="logo">
                 <img src="/static/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                <div class="logo-mark" style="display:none">CM</div>
-                <div class="logo-text">Competitor<span>Monitor</span></div>
+                <div class="logo-mark" style="display:none">SI</div>
+                <div class="logo-text">Streaming<span>Intel</span></div>
             </div>
 
             <nav class="nav">
@@ -1656,12 +1656,19 @@
                 <div class="intel-row" id="dashboard-intel"></div>
             </div>
 
+            <div class="section" style="margin-top: 32px;">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Collection Runs</h2>
+                </div>
+                <div class="runs-grid" id="dashboard-runs" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;"></div>
+            </div>
+
         </div>
 
         <!-- INTEL VIEW -->
         <div id="view-intel" class="view">
             <h1 class="page-title">Intel Feed</h1>
-            <div class="filter-bar">
+            <div class="filter-bar" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px;">
                 <select class="filter-select" id="category-filter" onchange="loadIntel()">
                     <option value="">All Categories</option>
                     <option value="strategic">Strategic</option>
@@ -1671,8 +1678,25 @@
                     <option value="ai_ads">AI & Ads</option>
                     <option value="pricing">Pricing</option>
                 </select>
+                <select class="filter-select" id="impact-filter" onchange="loadIntel()">
+                    <option value="0">All Impact Levels</option>
+                    <option value="8">High Impact (8+)</option>
+                    <option value="7">Important (7+)</option>
+                    <option value="6">Notable (6+)</option>
+                </select>
+                <select class="filter-select" id="competitor-filter" onchange="loadIntel()">
+                    <option value="">All Competitors</option>
+                </select>
+                <select class="filter-select" id="sort-filter" onchange="loadIntel()">
+                    <option value="date">Newest First</option>
+                    <option value="impact">Highest Impact</option>
+                </select>
+                <div style="margin-left: auto; color: var(--text-muted); font-size: 13px;" id="intel-count"></div>
             </div>
             <div class="intel-grid" id="intel-grid"></div>
+            <div style="text-align: center; padding: 24px;">
+                <button class="btn btn-ghost" id="load-more-btn" onclick="loadMoreIntel()" style="display: none;">Load More</button>
+            </div>
         </div>
 
         <!-- TUBI VIEW (Our Company) -->
@@ -1896,9 +1920,28 @@
             `;
 
             // Load intel
-            const intelRes = await fetch('/api/intel?limit=10&min_impact=5');
+            const intelRes = await fetch('/api/intel?limit=10&min_impact=7');
             const intelData = await intelRes.json();
             renderIntelRow(intelData.intel, 'dashboard-intel');
+            
+            // Render recent runs
+            if (data.recent_runs?.length) {
+                document.getElementById('dashboard-runs').innerHTML = data.recent_runs.slice(0, 6).map(r => `
+                    <div class="run-card" style="background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: 600; color: var(--tubi-purple);">Run #${r.id}</span>
+                            <span class="status-badge status-${r.status}" style="font-size: 11px;">${r.status}</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">${formatDate(r.started_at)}</div>
+                        <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px;">
+                            <span><strong>${r.articles_count}</strong> articles</span>
+                            <span><strong>${r.intel_count}</strong> intel</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('dashboard-runs').innerHTML = '<div style="color: var(--text-muted);">No runs yet</div>';
+            }
         }
 
         // Store intel data for modal access
@@ -2053,41 +2096,98 @@
         // ═══════════════════════════════════════════════════════════════
         // INTEL
         // ═══════════════════════════════════════════════════════════════
-        async function loadIntel() {
+        let intelOffset = 0;
+        const INTEL_PAGE_SIZE = 50;
+        
+        async function loadIntel(append = false) {
+            if (!append) intelOffset = 0;
+            
             const category = document.getElementById('category-filter')?.value || '';
-            const res = await fetch(`/api/intel?limit=100&category=${category}`);
+            const minImpact = document.getElementById('impact-filter')?.value || '0';
+            const competitor = document.getElementById('competitor-filter')?.value || '';
+            const sort = document.getElementById('sort-filter')?.value || 'date';
+            
+            let url = `/api/intel?limit=${INTEL_PAGE_SIZE}&offset=${intelOffset}&min_impact=${minImpact}&category=${category}`;
+            if (competitor) url += `&competitor=${competitor}`;
+            if (sort === 'impact') url += `&sort=impact`;
+            
+            const res = await fetch(url);
             const data = await res.json();
             
             // Cache intel data
             data.intel?.forEach(item => { intelCache[item.id] = item; });
             
+            // Update count
+            document.getElementById('intel-count').textContent = `${data.total || 0} results`;
+            
+            // Show/hide load more
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (data.intel?.length === INTEL_PAGE_SIZE) {
+                loadMoreBtn.style.display = 'inline-block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+            
             const container = document.getElementById('intel-grid');
             if (!data.intel?.length) {
-                container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No intel found</p></div>`;
+                if (!append) container.innerHTML = `<div class="empty-state"><p class="empty-state-text">No intel found</p></div>`;
                 return;
             }
-            container.innerHTML = data.intel.map(item => {
+            
+            const html = data.intel.map(item => {
                 const sourceCount = item.source_count || 1;
                 const sourceBadge = sourceCount > 1 ? `<span class="source-badge">${sourceCount} sources</span>` : '';
                 const impactClass = item.impact_score >= 8 ? 'high-impact' : '';
+                const dateStr = item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) : '';
                 return `
                 <div class="intel-card ${impactClass}" onclick="openIntelModal(${item.id})">
                     <div class="intel-meta">
-                        <span class="intel-source">${esc(item.competitor_id)}</span>
+                        <span class="intel-source">${esc(item.competitor_id?.toUpperCase() || 'INDUSTRY')}</span>
                         <span class="intel-category">${item.category}</span>
+                        <span class="intel-date">${dateStr}</span>
                     </div>
                     <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
                     <p class="intel-summary">${esc(item.summary)}</p>
                     <div class="intel-footer">
                         <div class="intel-scores">
-                            <span class="score-item">Impact<strong>${item.impact_score?.toFixed(1)}</strong></span>
+                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}22; color: ${getImpactColor(item.impact_score)};">
+                                ${item.impact_score?.toFixed(1)} Impact
+                            </span>
                             ${sourceBadge}
                         </div>
-                        <span class="intel-link">View Details →</span>
+                        <span class="intel-link">Details →</span>
                     </div>
                 </div>
             `}).join('');
+            
+            if (append) {
+                container.innerHTML += html;
+            } else {
+                container.innerHTML = html;
+            }
+            
+            intelOffset += data.intel.length;
         }
+        
+        function loadMoreIntel() {
+            loadIntel(true);
+        }
+        
+        // Populate competitor filter dropdown
+        async function populateCompetitorFilter() {
+            const res = await fetch('/api/competitors');
+            const data = await res.json();
+            const select = document.getElementById('competitor-filter');
+            if (select && data.competitors) {
+                data.competitors.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    select.appendChild(opt);
+                });
+            }
+        }
+        populateCompetitorFilter();
 
         // ═══════════════════════════════════════════════════════════════
         // COMPETITORS
