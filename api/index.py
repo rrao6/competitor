@@ -13,7 +13,7 @@ import json
 import time
 import traceback
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import Flask, render_template, jsonify, request, Response
@@ -400,14 +400,24 @@ def api_tubi_intel():
 @cached(ttl_seconds=300)
 def api_tubi_stats():
     if not get_database_url():
-        return jsonify({"error": "Database not connected", "total_intel": 0, "high_impact": 0, "sources_tracked": 0}), 500
+        return jsonify({"error": "Database not connected", "total_articles": 0, "total_intel": 0, "recent_mentions": 0}), 500
     
     try:
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
+            week_ago = datetime.now() - timedelta(days=7)
             
-            # Count only articles where ORIGINAL text mentions Tubi
-            total = conn.execute(text("""
+            # Count articles that mention Tubi
+            total_articles = conn.execute(text("""
+                SELECT COUNT(*) FROM articles
+                WHERE published_at >= :cutoff
+                  AND (LOWER(title) LIKE '%tubi%' 
+                       OR LOWER(COALESCE(raw_snippet, '')) LIKE '%tubi%'
+                       OR LOWER(COALESCE(summary, '')) LIKE '%tubi%')
+            """), {"cutoff": cutoff}).scalar() or 0
+            
+            # Count intel items about Tubi
+            total_intel = conn.execute(text("""
                 SELECT COUNT(*) FROM intel i JOIN articles a ON i.article_id = a.id
                 WHERE a.published_at >= :cutoff
                   AND (LOWER(a.title) LIKE '%tubi%' 
@@ -415,27 +425,28 @@ def api_tubi_stats():
                        OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
             """), {"cutoff": cutoff}).scalar() or 0
             
-            high_impact = conn.execute(text("""
+            # Count intel from this week
+            recent_mentions = conn.execute(text("""
                 SELECT COUNT(*) FROM intel i JOIN articles a ON i.article_id = a.id
-                WHERE a.published_at >= :cutoff AND i.impact_score >= 8
+                WHERE a.published_at >= :week_ago
                   AND (LOWER(a.title) LIKE '%tubi%' 
                        OR LOWER(COALESCE(a.raw_snippet, '')) LIKE '%tubi%'
                        OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
-            """), {"cutoff": cutoff}).scalar() or 0
+            """), {"week_ago": week_ago}).scalar() or 0
             
             return jsonify({
-                "total_intel": total,
-                "high_impact": high_impact,
-                "sources_tracked": 12
+                "total_articles": total_articles,
+                "total_intel": total_intel,
+                "recent_mentions": recent_mentions
             })
             
     except Exception as e:
         return jsonify({
             "error": str(e), 
             "type": type(e).__name__,
+            "total_articles": 0, 
             "total_intel": 0, 
-            "high_impact": 0, 
-            "sources_tracked": 0
+            "recent_mentions": 0
         }), 500
 
 

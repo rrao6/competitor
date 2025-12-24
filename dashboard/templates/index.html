@@ -716,63 +716,95 @@
         .tubi-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-            padding: 24px;
-            background: linear-gradient(135deg, #45009D 0%, #8C00E5 100%);
-            border-radius: 16px;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 36px 40px;
+            background: linear-gradient(135deg, #45009D 0%, #8C00E5 50%, #A933FF 100%);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tubi-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .tubi-header-content {
             color: white;
+            position: relative;
+            z-index: 1;
         }
 
         .tubi-header .page-title {
             color: white;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
         .tubi-header .page-subtitle {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.85);
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 0;
         }
 
         .tubi-stats-mini {
             display: flex;
-            gap: 24px;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
         }
 
         .tubi-stat-mini {
             text-align: center;
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+            padding: 20px 28px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            min-width: 100px;
         }
 
         .tubi-stat-value {
             display: block;
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 36px;
+            font-weight: 800;
             color: white;
+            line-height: 1;
+            margin-bottom: 6px;
         }
 
         .tubi-stat-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            color: rgba(255,255,255,0.75);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.75px;
+            font-weight: 600;
         }
 
         .tubi-tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 32px;
+            background: var(--bg-card);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            width: fit-content;
         }
 
         .tubi-tab {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             background: transparent;
             color: var(--text-secondary);
@@ -781,7 +813,7 @@
             font-weight: 600;
             cursor: pointer;
             border-radius: 8px;
-            transition: all 0.15s;
+            transition: all 0.2s ease;
         }
 
         .tubi-tab:hover {
@@ -792,6 +824,7 @@
         .tubi-tab.active {
             background: var(--tubi-purple);
             color: white;
+            box-shadow: 0 4px 12px var(--tubi-purple-glow);
         }
 
         .tubi-content {
@@ -805,7 +838,7 @@
         .tubi-articles-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .tubi-article-item {
@@ -1317,8 +1350,13 @@
            ═══════════════════════════════════════════════════════════════ */
         .intel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        
+        .intel-grid .intel-card {
+            flex: none;
+            scroll-snap-align: none;
         }
 
         /* ═══════════════════════════════════════════════════════════════
