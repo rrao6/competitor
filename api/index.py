@@ -306,6 +306,8 @@ def api_tubi_intel():
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
+            # Only show articles where the ORIGINAL article mentions Tubi
+            # (title or raw article text - NOT the AI-generated summary)
             rows = conn.execute(text("""
                 SELECT i.id, i.summary, i.category, i.impact_score, i.relevance_score,
                        i.related_urls_json, i.created_at, i.source_count,
@@ -313,7 +315,9 @@ def api_tubi_intel():
                 FROM intel i
                 JOIN articles a ON i.article_id = a.id
                 WHERE a.published_at >= :cutoff
-                  AND (LOWER(a.title) LIKE '%tubi%' OR LOWER(i.summary) LIKE '%tubi%')
+                  AND (LOWER(a.title) LIKE '%tubi%' 
+                       OR LOWER(COALESCE(a.raw_snippet, '')) LIKE '%tubi%'
+                       OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
                 ORDER BY a.published_at DESC
                 LIMIT :limit
             """), {"cutoff": cutoff, "limit": limit}).fetchall()
@@ -367,16 +371,21 @@ def api_tubi_stats():
         with get_engine().connect() as conn:
             cutoff = datetime(2025, 1, 1)
             
+            # Count only articles where ORIGINAL text mentions Tubi
             total = conn.execute(text("""
                 SELECT COUNT(*) FROM intel i JOIN articles a ON i.article_id = a.id
                 WHERE a.published_at >= :cutoff
-                  AND (LOWER(a.title) LIKE '%tubi%' OR LOWER(i.summary) LIKE '%tubi%')
+                  AND (LOWER(a.title) LIKE '%tubi%' 
+                       OR LOWER(COALESCE(a.raw_snippet, '')) LIKE '%tubi%'
+                       OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
             """), {"cutoff": cutoff}).scalar() or 0
             
             high_impact = conn.execute(text("""
                 SELECT COUNT(*) FROM intel i JOIN articles a ON i.article_id = a.id
                 WHERE a.published_at >= :cutoff AND i.impact_score >= 8
-                  AND (LOWER(a.title) LIKE '%tubi%' OR LOWER(i.summary) LIKE '%tubi%')
+                  AND (LOWER(a.title) LIKE '%tubi%' 
+                       OR LOWER(COALESCE(a.raw_snippet, '')) LIKE '%tubi%'
+                       OR LOWER(COALESCE(a.summary, '')) LIKE '%tubi%')
             """), {"cutoff": cutoff}).scalar() or 0
             
             return jsonify({
