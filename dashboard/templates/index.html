@@ -310,9 +310,22 @@
 
         .intel-meta {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .intel-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .intel-meta-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .intel-source {
@@ -325,7 +338,7 @@
 
         .intel-category {
             font-size: 10px;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 3px;
             background: var(--bg-3);
             color: var(--text-2);
@@ -335,15 +348,14 @@
         
         .intel-date {
             font-size: 11px;
-            color: var(--text-2);
-            margin-left: auto;
+            color: var(--text-3);
         }
 
         .intel-title {
             font-size: 14px;
             font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 8px;
+            line-height: 1.45;
+            margin-bottom: 10px;
             color: var(--text-0);
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -479,8 +491,8 @@
             font-size: 12px;
             padding: 4px 10px;
             border-radius: 4px;
-            background: var(--bg-secondary);
-            color: var(--text-muted);
+            background: var(--bg-2);
+            color: var(--text-2);
         }
 
         .modal-title {
@@ -494,9 +506,9 @@
             width: 36px;
             height: 36px;
             border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-elevated);
-            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text-1);
             cursor: pointer;
             font-size: 18px;
             display: flex;
@@ -506,9 +518,9 @@
         }
 
         .modal-close:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border-color: var(--text-muted);
+            background: var(--bg-3);
+            color: var(--text-0);
+            border-color: var(--text-2);
         }
 
         .modal-body {
@@ -524,7 +536,7 @@
         .modal-section-title {
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-2);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 12px;
@@ -533,7 +545,7 @@
         .modal-summary {
             font-size: 16px;
             line-height: 1.7;
-            color: var(--text-secondary);
+            color: var(--text-1);
         }
 
         .modal-scores {
@@ -543,7 +555,7 @@
         }
 
         .modal-score-card {
-            background: var(--bg-secondary);
+            background: var(--bg-2);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -552,12 +564,12 @@
         .modal-score-value {
             font-size: 32px;
             font-weight: 700;
-            color: var(--tubi-purple);
+            color: var(--accent);
         }
 
         .modal-score-label {
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--text-2);
             margin-top: 4px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
@@ -565,7 +577,7 @@
 
         .modal-score-desc {
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--text-2);
             margin-top: 4px;
             opacity: 0.7;
         }
@@ -583,23 +595,23 @@
             align-items: flex-start;
             gap: 12px;
             padding: 12px 14px;
-            background: var(--bg-secondary);
+            background: var(--bg-2);
             border-radius: 8px;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-dim);
             transition: all 0.15s;
             text-decoration: none;
         }
 
         .modal-source-item:hover {
-            border-color: var(--tubi-purple);
-            background: var(--bg-elevated);
+            border-color: var(--accent);
+            background: var(--bg-2);
         }
 
         .modal-source-number {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: var(--tubi-purple);
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -610,9 +622,9 @@
         }
 
         .modal-source-number.secondary {
-            background: var(--bg-elevated);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            background: var(--bg-2);
+            color: var(--text-1);
+            border: 1px solid var(--border);
         }
 
         .modal-source-info {
@@ -623,13 +635,13 @@
         .modal-source-domain {
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--text-0);
             margin-bottom: 2px;
         }
 
         .modal-source-url {
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--text-2);
             word-break: break-all;
             line-height: 1.4;
             display: -webkit-box;
@@ -640,18 +652,18 @@
 
         .modal-source-arrow {
             font-size: 14px;
-            color: var(--text-muted);
+            color: var(--text-2);
             flex-shrink: 0;
             align-self: center;
         }
 
         .modal-source-item:hover .modal-source-arrow {
-            color: var(--tubi-purple);
+            color: var(--accent);
         }
 
         .modal-footer {
             padding: 20px 32px;
-            border-top: 1px solid var(--border-subtle);
+            border-top: 1px solid var(--border-dim);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -659,7 +671,7 @@
 
         .modal-meta {
             font-size: 13px;
-            color: var(--text-muted);
+            color: var(--text-2);
         }
 
         .intel-card {
@@ -669,8 +681,8 @@
         }
 
         .intel-card.high-impact {
-            border-color: var(--tubi-purple);
-            box-shadow: 0 0 20px var(--tubi-purple-glow);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-dim);
         }
 
         .intel-card.high-impact .intel-title::before {
@@ -799,21 +811,21 @@
             align-items: flex-start;
             gap: 16px;
             padding: 16px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            background: var(--bg-1);
+            border: 1px solid var(--border-dim);
             border-radius: 10px;
             transition: all 0.15s;
         }
 
         .tubi-article-item:hover {
-            border-color: var(--tubi-purple);
+            border-color: var(--accent);
         }
 
         .tubi-article-icon {
             width: 40px;
             height: 40px;
             border-radius: 8px;
-            background: var(--tubi-purple-glow);
+            background: var(--accent-dim);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -840,17 +852,17 @@
             display: flex;
             gap: 12px;
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--text-2);
         }
 
         .tubi-article-source {
-            color: var(--tubi-purple);
+            color: var(--accent);
             font-weight: 500;
         }
 
         .tubi-article-summary {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--text-1);
             margin-top: 8px;
             line-height: 1.5;
         }
@@ -874,142 +886,89 @@
         }
 
         .tubi-article-badge.no-intel {
-            background: var(--bg-elevated);
-            color: var(--text-muted);
+            background: var(--bg-2);
+            color: var(--text-2);
         }
 
         /* ═══════════════════════════════════════════════════════════════
            ALERTS VIEW (Slack-ready)
            ═══════════════════════════════════════════════════════════════ */
-        .alerts-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-            gap: 20px;
-        }
-
-        .page-subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .alerts-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .alerts-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding: 16px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-        }
-
-        .alert-threshold {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .alert-threshold label {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .alert-threshold select {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 13px;
-        }
-
-        .alert-count {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
+        /* Alerts view uses standard filter-bar and page styles */
 
         .alerts-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-bottom: 40px;
+            gap: 12px;
         }
 
         .slack-alert {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
+            background: var(--bg-1);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
             overflow: hidden;
-            transition: all 0.2s;
+            transition: border-color 0.15s;
         }
 
         .slack-alert:hover {
-            border-color: var(--border-color);
+            border-color: var(--border);
         }
 
         .slack-alert-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 16px;
+            background: var(--bg-2);
+            border-bottom: 1px solid var(--border-dim);
         }
 
         .slack-alert-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .slack-alert-impact {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .slack-alert-impact.critical { color: #FF4757; }
-        .slack-alert-impact.high { color: #FFA502; }
-        .slack-alert-impact.medium { color: var(--info); }
-
-        .slack-alert-competitor {
+            gap: 4px;
             font-size: 12px;
             font-weight: 600;
-            color: var(--tubi-purple);
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+
+        .slack-alert-impact.critical { background: rgba(239,68,68,0.15); color: var(--red); }
+        .slack-alert-impact.high { background: rgba(245,158,11,0.15); color: var(--amber); }
+        .slack-alert-impact.medium { background: rgba(14,165,233,0.15); color: var(--sky); }
+
+        .slack-alert-competitor {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .slack-alert-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .slack-alert-btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-elevated);
-            color: var(--text-secondary);
-            font-size: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-1);
+            color: var(--text-1);
+            font-size: 11px;
             cursor: pointer;
             transition: all 0.15s;
         }
 
         .slack-alert-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
+            background: var(--bg-3);
+            color: var(--text-0);
         }
 
         .slack-alert-body {
@@ -1021,7 +980,7 @@
             background: #1a1d21;
             border-radius: 8px;
             padding: 16px;
-            border-left: 4px solid var(--tubi-purple);
+            border-left: 4px solid var(--accent);
         }
 
         .slack-message-title {
@@ -1074,8 +1033,8 @@
         }
 
         .digest-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            background: var(--bg-1);
+            border: 1px solid var(--border-dim);
             border-radius: 12px;
             margin-bottom: 24px;
             overflow: hidden;
@@ -1167,7 +1126,7 @@
             width: 36px;
             height: 36px;
             border-radius: 4px;
-            background: var(--tubi-purple);
+            background: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1244,8 +1203,8 @@
         .slack-settings-modal.active { display: flex; align-items: center; justify-content: center; }
 
         .slack-settings-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background: var(--bg-1);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 32px;
             max-width: 500px;
@@ -1259,7 +1218,7 @@
         }
 
         .slack-settings-desc {
-            color: var(--text-secondary);
+            color: var(--text-1);
             font-size: 14px;
             margin-bottom: 24px;
         }
@@ -1273,23 +1232,23 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: var(--text-secondary);
+            color: var(--text-1);
         }
 
         .slack-input {
             width: 100%;
             padding: 12px 16px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: var(--bg-2);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            color: var(--text-primary);
+            color: var(--text-0);
             font-family: inherit;
             font-size: 14px;
         }
 
         .slack-input:focus {
             outline: none;
-            border-color: var(--tubi-purple);
+            border-color: var(--accent);
         }
 
         .slack-settings-footer {
@@ -1458,17 +1417,17 @@
             letter-spacing: 0.5px;
             background: var(--bg-2);
             border-bottom: 1px solid var(--border-dim);
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
         }
 
         .table td {
             padding: 16px 20px;
             font-size: 14px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
         }
 
         .table tbody tr:hover {
-            background: var(--bg-elevated);
+            background: var(--bg-2);
         }
 
         .table tbody tr:last-child td {
@@ -1497,7 +1456,7 @@
 
         .status-error {
             background: rgba(255, 0, 51, 0.1);
-            color: var(--tubi-purple);
+            color: var(--accent);
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -1511,8 +1470,8 @@
         }
 
         .reports-sidebar {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            background: var(--bg-1);
+            border: 1px solid var(--border-dim);
             border-radius: 12px;
             overflow: hidden;
         }
@@ -1521,11 +1480,11 @@
             padding: 16px 20px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-2);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-subtle);
-            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-dim);
+            background: var(--bg-2);
         }
 
         .reports-list {
@@ -1535,18 +1494,18 @@
 
         .report-item {
             padding: 16px 20px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
             cursor: pointer;
             transition: background 0.15s ease;
         }
 
         .report-item:hover {
-            background: var(--bg-elevated);
+            background: var(--bg-2);
         }
 
         .report-item.active {
-            background: var(--bg-elevated);
-            border-left: 3px solid var(--tubi-purple);
+            background: var(--bg-2);
+            border-left: 3px solid var(--accent);
         }
 
         .report-item-title {
@@ -1557,12 +1516,12 @@
 
         .report-item-meta {
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--text-2);
         }
 
         .report-viewer {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            background: var(--bg-1);
+            border: 1px solid var(--border-dim);
             border-radius: 12px;
             padding: 40px;
             overflow-y: auto;
@@ -1577,7 +1536,7 @@
             font-weight: 700;
             margin-bottom: 24px;
             letter-spacing: -0.5px;
-            color: var(--tubi-purple);
+            color: var(--accent);
         }
 
         .report-content h2 {
@@ -1585,25 +1544,25 @@
             font-weight: 600;
             margin: 40px 0 16px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-dim);
         }
 
         .report-content h3 {
             font-size: 17px;
             font-weight: 600;
             margin: 28px 0 12px;
-            color: var(--text-secondary);
+            color: var(--text-1);
         }
 
         .report-content p {
-            color: var(--text-secondary);
+            color: var(--text-1);
             margin-bottom: 16px;
             line-height: 1.7;
         }
 
         .report-content ul, .report-content ol {
             margin: 0 0 20px 24px;
-            color: var(--text-secondary);
+            color: var(--text-1);
         }
 
         .report-content li {
@@ -1612,13 +1571,13 @@
         }
 
         .report-content strong {
-            color: var(--text-primary);
+            color: var(--text-0);
         }
 
         .report-content hr {
             border: none;
             height: 1px;
-            background: var(--border-subtle);
+            background: var(--border-dim);
             margin: 32px 0;
         }
 
@@ -1819,7 +1778,7 @@
             <p class="page-subtitle">High-impact intel formatted for Slack</p>
 
             <div class="filter-bar">
-                <select id="alert-threshold" onchange="loadAlerts()">
+                <select class="filter-select" id="alert-threshold" onchange="loadAlerts()">
                     <option value="8">Critical (8+)</option>
                     <option value="7" selected>High Impact (7+)</option>
                     <option value="5">Medium+ (5+)</option>
@@ -1926,9 +1885,9 @@
             if (data.error) {
                 document.getElementById('stats-grid').innerHTML = `
                     <div class="stat-card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                        <div style="color: var(--tubi-purple); font-size: 24px; margin-bottom: 12px;">⚠️ Database Not Connected</div>
-                        <div style="color: var(--text-secondary); margin-bottom: 8px;">${data.error}</div>
-                        <div style="color: var(--text-muted); font-size: 13px;">${data.hint || 'Check Vercel environment variables'}</div>
+                        <div style="color: var(--accent); font-size: 24px; margin-bottom: 12px;">⚠️ Database Not Connected</div>
+                        <div style="color: var(--text-1); margin-bottom: 8px;">${data.error}</div>
+                        <div style="color: var(--text-2); font-size: 13px;">${data.hint || 'Check Vercel environment variables'}</div>
                     </div>
                 `;
                 document.getElementById('dashboard-intel').innerHTML = '';
@@ -1980,12 +1939,12 @@
             // Render recent runs
             if (data.recent_runs?.length) {
                 document.getElementById('dashboard-runs').innerHTML = data.recent_runs.slice(0, 6).map(r => `
-                    <div class="run-card" style="background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color);">
+                    <div class="run-card" style="background: var(--bg-1); border-radius: 12px; padding: 16px; border: 1px solid var(--border);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-weight: 600; color: var(--tubi-purple);">Run #${r.id}</span>
+                            <span style="font-weight: 600; color: var(--accent);">Run #${r.id}</span>
                             <span class="status-badge status-${r.status}" style="font-size: 11px;">${r.status}</span>
                         </div>
-                        <div style="font-size: 13px; color: var(--text-secondary);">${formatDate(r.started_at)}</div>
+                        <div style="font-size: 13px; color: var(--text-1);">${formatDate(r.started_at)}</div>
                         <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 13px;">
                             <span><strong>${r.articles_count}</strong> articles</span>
                             <span><strong>${r.intel_count}</strong> intel</span>
@@ -1993,7 +1952,7 @@
                     </div>
                 `).join('');
             } else {
-                document.getElementById('dashboard-runs').innerHTML = '<div style="color: var(--text-muted);">No runs yet</div>';
+                document.getElementById('dashboard-runs').innerHTML = '<div style="color: var(--text-2);">No runs yet</div>';
             }
         }
 
@@ -2013,20 +1972,26 @@
             container.innerHTML = items.map(item => {
                 const sourceCount = item.source_count || 1;
                 const sourceBadge = sourceCount > 1 ? `<span class="source-badge">${sourceCount} sources</span>` : '';
+                const dateStr = item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) : '';
                 return `
                 <div class="intel-card" onclick="openIntelModal(${item.id})">
                     <div class="intel-meta">
-                        <span class="intel-source">${esc(item.competitor_id)}</span>
-                        <span class="intel-category">${item.category}</span>
+                        <span class="intel-source">${esc(item.competitor_id || 'INDUSTRY')}</span>
+                        <div class="intel-meta-right">
+                            <span class="intel-category">${item.category}</span>
+                            <span class="intel-date">${dateStr}</span>
+                        </div>
                     </div>
                     <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
                     <p class="intel-summary">${esc(item.summary)}</p>
                     <div class="intel-footer">
                         <div class="intel-scores">
-                            <span class="score-item">Impact<strong>${item.impact_score?.toFixed(1)}</strong></span>
+                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}18; color: ${getImpactColor(item.impact_score)};">
+                                ${item.impact_score?.toFixed(1)} impact
+                            </span>
                             ${sourceBadge}
                         </div>
-                        <span class="intel-link">View Details →</span>
+                        <span class="intel-link">Details →</span>
                     </div>
                 </div>
             `}).join('');
@@ -2200,15 +2165,17 @@
                 <div class="intel-card ${impactClass}" onclick="openIntelModal(${item.id})">
                     <div class="intel-meta">
                         <span class="intel-source">${esc(item.competitor_id?.toUpperCase() || 'INDUSTRY')}</span>
-                        <span class="intel-category">${item.category}</span>
-                        <span class="intel-date">${dateStr}</span>
+                        <div class="intel-meta-right">
+                            <span class="intel-category">${item.category}</span>
+                            <span class="intel-date">${dateStr}</span>
+                        </div>
                     </div>
                     <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
                     <p class="intel-summary">${esc(item.summary)}</p>
                     <div class="intel-footer">
                         <div class="intel-scores">
-                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}22; color: ${getImpactColor(item.impact_score)};">
-                                ${item.impact_score?.toFixed(1)} Impact
+                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}18; color: ${getImpactColor(item.impact_score)};">
+                                ${item.impact_score?.toFixed(1)} impact
                             </span>
                             ${sourceBadge}
                         </div>
@@ -2298,29 +2265,29 @@
             `;
             
             if (data.intel.length === 0) {
-                html += '<p style="color: var(--text-muted);">No intel found for this competitor.</p>';
+                html += '<p style="color: var(--text-2);">No intel found for this competitor.</p>';
             } else {
-                html += `<p style="color: var(--text-secondary); margin-bottom: 1rem;">${data.total} intel items</p>`;
+                html += `<p style="color: var(--text-1); margin-bottom: 1rem;">${data.total} intel items</p>`;
                 data.intel.forEach(i => {
                     const relatedCount = i.related_urls ? i.related_urls.length : 0;
                     html += `
-                        <div class="intel-item" style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                        <div class="intel-item" style="padding: 1rem; border-bottom: 1px solid var(--border);">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span class="category-badge">${i.category}</span>
                                 <span class="impact-score" style="background: ${getImpactColor(i.impact_score)};">Impact: ${i.impact_score}</span>
                             </div>
-                            <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">
+                            <h4 style="color: var(--text-0); margin-bottom: 0.5rem;">
                                 <a href="${i.url}" target="_blank" style="color: inherit; text-decoration: none;">${esc(i.title)}</a>
                             </h4>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem;">${esc(i.summary)}</p>
-                            ${i.source_count > 1 ? `<div style="color: var(--tubi-purple); font-size: 0.8rem; margin-top: 0.5rem;">📰 ${i.source_count} sources${relatedCount > 0 ? ` (${relatedCount} additional links)` : ''}</div>` : ''}
+                            <p style="color: var(--text-1); font-size: 0.9rem;">${esc(i.summary)}</p>
+                            ${i.source_count > 1 ? `<div style="color: var(--accent); font-size: 0.8rem; margin-top: 0.5rem;">📰 ${i.source_count} sources${relatedCount > 0 ? ` (${relatedCount} additional links)` : ''}</div>` : ''}
                             ${relatedCount > 0 ? `
                                 <div style="margin-top: 0.5rem;">
                                     <details>
-                                        <summary style="color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">View all sources</summary>
+                                        <summary style="color: var(--text-2); cursor: pointer; font-size: 0.8rem;">View all sources</summary>
                                         <ul style="margin-top: 0.5rem; padding-left: 1rem;">
-                                            <li><a href="${i.url}" target="_blank" style="color: var(--tubi-purple-light); font-size: 0.8rem;">Primary source</a></li>
-                                            ${i.related_urls.map(url => `<li><a href="${url}" target="_blank" style="color: var(--tubi-purple-light); font-size: 0.8rem;">${url.substring(0, 60)}...</a></li>`).join('')}
+                                            <li><a href="${i.url}" target="_blank" style="color: var(--accent); font-size: 0.8rem;">Primary source</a></li>
+                                            ${i.related_urls.map(url => `<li><a href="${url}" target="_blank" style="color: var(--accent); font-size: 0.8rem;">${url.substring(0, 60)}...</a></li>`).join('')}
                                         </ul>
                                     </details>
                                 </div>
@@ -2341,7 +2308,7 @@
         }
         
         function getImpactColor(score) {
-            if (score >= 8) return 'var(--tubi-purple)';
+            if (score >= 8) return 'var(--accent)';
             if (score >= 6) return '#2563eb';
             return '#6b7280';
         }
@@ -2439,15 +2406,17 @@
                 <div class="intel-card" onclick="openIntelModal(${item.id})">
                     <div class="intel-meta">
                         <span class="intel-source">TUBI</span>
-                        <span class="intel-category">${item.category}</span>
-                        <span class="intel-date">${dateStr}</span>
+                        <div class="intel-meta-right">
+                            <span class="intel-category">${item.category}</span>
+                            <span class="intel-date">${dateStr}</span>
+                        </div>
                     </div>
                     <h3 class="intel-title">${esc(cleanTitle(item.title))}</h3>
                     <p class="intel-summary">${esc(item.summary)}</p>
                     <div class="intel-footer">
                         <div class="intel-scores">
-                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}22; color: ${getImpactColor(item.impact_score)};">
-                                ${item.impact_score?.toFixed(1)} Impact
+                            <span class="score-item" style="background: ${getImpactColor(item.impact_score)}18; color: ${getImpactColor(item.impact_score)};">
+                                ${item.impact_score?.toFixed(1)} impact
                             </span>
                             ${sourceBadge}
                         </div>
